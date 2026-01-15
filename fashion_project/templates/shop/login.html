@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login/Register</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+</head>
+<body>
+    <div class="hero-section">
+        <p>FashionHub</p> 
+        <a href="{% url 'index' %}" class="btn-hero">Back to Home</a>
+    </div>
+    <div class="container">
+        <div class="auth-card" x-data="{ tab: 'login',  forgotOpen: false }">
+            
+            <form  hx-post="{% url 'login' %}" 
+                    hx-target="#messages"
+                    hx-swap="innerHTML"
+                     class="form">
+                {% csrf_token %}
+                <h2>Welcome back</h2>
+                <div id="messages"></div>
+                <div class="form-group">
+                    <label for="">Username:</label> 
+                    <input type="text" placeholder="Username" name="username"> 
+                </div>
+                <div class="form-group">
+                    <label for="">Password:</label> 
+                    <input type="password" placeholder="Password" name="password"> 
+                </div>
+                <button type="submit" class="login-btn">Login </button> <br> <br>
+                <a href="#"
+                 class="forgot-btn"
+                 @click.prevent="forgotOpen = true"
+                 
+                 >Forgot Password ?</a> <br> <br>
+                 <a href="{% url 'register' %}">Don't have an account?</a>
+            </form>
+           
+            <div
+                x-show="forgotOpen"
+                x-cloak
+                class="modal-overlay"
+                @click.self = "forgotOpen = false"
+                x-transition
+            >
+                <div class="modal">
+                    <h3>Reset your Password</h3>
+                    <p>Enter your email and we'll send a reset link</p>
+                    <form method="post" action="{% url 'password_reset' %}">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn">Send Reset Link</button>
+                    </form>
+                    <button class="close-btn" @click="forgotOpen=false"> x </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

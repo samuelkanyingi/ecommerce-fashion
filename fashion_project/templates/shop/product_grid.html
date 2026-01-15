@@ -1,0 +1,16 @@
+{% for product in products %}
+<div class="product-card">
+    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+    <h3>{{ product.name }}</h3>
+    <p>KES {{ product.price }}</p>
+    <form hx-post="{% url 'add_to_cart' %}" 
+          hx-target="#cart-icon" 
+          hx-swap="outerHTML" 
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+        <input type="hidden" name="product_id" value="{{ product.id }}">
+        <button class="cartBtn"><i class="fa fa-cart-plus"></i> Add to Cart</button>
+    </form>
+</div>
+{% empty %}
+<p>No products found.</p>
+{% endfor %}

@@ -1,0 +1,56 @@
+<div class="cartContainer" id="cartContainer">
+    <div class="cart-items">
+{% for item in cart %}
+<div class="cart-item">
+    {% if '/media/' in item.image or 'media/' in item.image %}
+        <img src="{{ item.image }}" width="80" alt="">
+    {% else %}
+        <img src="/static/{{ item.image }}" width="80" alt="">
+    {% endif %}
+    <div style="flex:1;margin:15px;">
+        <h4>{{ item.name }}</h4>
+        <p>KES {{ item.price }}</p>
+    </div>
+    <div style="display: flex; align-items:center; gap: 10px;">
+        <button 
+            hx-post="{% url 'update_cart' %}" 
+            hx-target="#cartContainer"
+            hx-swap="outerHTML"
+            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+            hx-vals='{"action":"decrease","name":"{{ item.name }}"}'
+            style="padding: 1px 4px;"
+            >-</button>
+
+        <strong>{{ item.quantity }}</strong>
+
+        <button 
+            hx-post="{% url 'update_cart' %}" 
+            hx-target="#cartContainer"
+            hx-swap="outerHTML"
+            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+            hx-vals='{"action":"increase","name":"{{ item.name }}"}'
+            style="padding: 1px 4px"
+            >+</button>
+
+        <button 
+            hx-post="{% url 'remove_item' %}" 
+            hx-target="#cartContainer"
+            hx-swap="outerHTML"
+            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+            hx-vals='{"name":"{{ item.name }}"}'
+            style="color: red; border: none; background: none;"
+>
+            <i class="fa fa-trash"></i>
+        </button>
+    </div>
+</div>
+{% empty %}
+<p>Your cart is empty</p>
+{% endfor %}
+    </div>
+    <div class="order-summary">
+        <h2>orderSummary</h2>
+        <p>Total: <strong>KES {{ total }}</strong></p>
+        <button style="width: 100%; background-color: black; color: white; padding: 12px 20px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='#333'" onmouseout="this.style.backgroundColor='black'">Pay with mpesa</button>
+    </div>
+</div>

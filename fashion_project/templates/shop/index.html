@@ -1,0 +1,242 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FashionHub Marketplace</title>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <style>
+         /* The side navigation menu */
+.sidenav {
+  height: 100%; /* 100% Full-height */
+  width: 0; /* 0 width - change this with JavaScript */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Stay on top */
+  top: 0; /* Stay at the top */
+  left: 0;
+  background-color: #111; /* Black*/
+  overflow-x: hidden; /* Disable horizontal scroll */
+  padding-top: 60px; /* Place content 60px from the top */
+  transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+}
+
+/* The navigation menu links */
+.sidenav a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #818181;
+  display: block;
+  transition: 0.3s;
+}
+
+/* When you mouse over the navigation links, change their color */
+.sidenav a:hover {
+  color: #f1f1f1;
+}
+
+/* Position and style the close button (top right corner) */
+.sidenav .closebtn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+}
+
+/* Style page content - use this if you want to push the page content to the right when you open the side navigation */
+#main {
+  transition: margin-left .5s;
+  padding: 20px;
+}
+
+/* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+
+/* Menu sections - sliding animation */
+.menu-section {
+  animation: slideIn 0.4s ease-in-out;
+}
+
+[x-cloak] { 
+  display: none; 
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.menu-section a i {
+  margin-left: 10px;
+  float: right;
+} 
+    </style>
+</head>
+<body>
+    
+
+
+    
+<!-- HERO -->
+<section class="hero-section">
+    <div class="hero-content">
+        <div class="nav-links">
+
+             <div id="mySidenav" class="sidenav" x-data="{ currentMenu: 'main' }">
+  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+  
+  <!-- Main Menu -->
+  <div x-show="currentMenu === 'main'" class="menu-section">
+    <a href="#">Home</a>
+    <a href="javascript:void(0)" @click="currentMenu = 'women'">Women <i class="fa fa-chevron-right"></i></a>
+    <a href="javascript:void(0)" @click="currentMenu = 'men'">Men <i class="fa fa-chevron-right"></i></a>
+    <a href="#">Accessories</a>
+    <a href="#">Sale</a>
+  </div>
+  
+  <!-- Women Submenu -->
+  <div x-show="currentMenu === 'women'" class="menu-section">
+    <a href="javascript:void(0)" @click="currentMenu = 'main'"><i class="fa fa-chevron-left"></i> Back</a>
+    <a href="#">Clothing</a>
+    <a href="#">Shoes</a>
+    <a href="#">Handbags</a>
+  </div>
+
+  <!-- Men Submenu -->
+  <div x-show="currentMenu === 'men'" class="menu-section">
+    <a href="javascript:void(0)" @click="currentMenu = 'main'"><i class="fa fa-chevron-left"></i> Back</a>
+    <a href="#">Clothing</a>
+    <a href="#">Shoes</a>
+    <a href="#">Watches</a>
+  </div>
+
+  
+</div>
+
+<!-- Use any element to open the sidenav -->
+<span onclick="openNav()"><i class="fa fa-bars"></i></span>
+
+
+    
+
+
+            <a href="#" class="hero-btn">FashionHub</a>
+            
+            <a href="{% url 'women' %}">Women</a>
+            <a href="{% url 'men' %}">Men</a>
+            <a href="#">Accessories</a>
+            
+        </div>
+        <div class="hero-icons">
+            <img src="{% static 'images/search2.png' %}" alt="search here">
+            <img src="{% static 'images/heart2.png' %}" alt=" love emoji icon">
+            <a href="{% url 'login' %}"><img src="{% static 'images/user2.png' %}" alt="profile icon"></a>
+            <a href="{% url 'cart' %}" style="position: relative; display: inline-block;">
+                <img src="{% static 'images/shopping-cart2.png' %}" alt="">
+                {% if cart|length > 0 %}
+                <span style="position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px; font-weight: bold;">{{ cart|length }}</span>
+                {% endif %}
+            </a>
+        </div>
+    </div>
+    
+</section>
+
+<!-- BANNER -->
+<section class="hero-banner">
+    <img src="{% static 'images/banner.jpeg' %}" alt="Sammy's Fashion Banner" class="banner-image">
+    
+    <div class="banner-text">
+        <p>Collection 2026</p>
+        <h1>Discover your style</h1>
+        <p>Explore our collection of the latest trends and timeless classics</p>
+        <p>Elevate your wardrobe with piecesthat speak  to your unique style</p>
+        <div>
+            <a href="{% url 'women' %}"><button class="btn-banner">Shop Women <img src="{% static 'images/share-arrow.png' %}" alt=""></button></a>
+            <button class="btn-banner btn2">Shop Men <img src="{% static 'images/share-arrow.png' %}" alt=""></button>
+        </div>
+    </div>
+    
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section class="featured-section">
+    <h1>Shop By Category</h1>
+    <p>Browse through our carefully selected categories to find exactly what you are looking for</p>
+    <div class="product-grid">
+        <div class="product-card">
+            <img src="{% static 'images/women1.png' %}" alt="Women Fashion">
+            <h3>Women Collection</h3>
+            <p>KES 3,999</p>
+        </div>
+        <div class="product-card">
+            <img src="{% static 'images/men.jpg' %}" alt="Men Fashion">
+            <h3>Men Collection</h3>
+            <p>KES 3,499</p>
+        </div>
+        <div class="product-card">
+            <img src="{% static 'images/accessories.png' %}" alt="Accessories">
+            <h3>Accessories</h3>
+            <p>KES 1,999</p>
+        </div>
+    </div>
+</section>
+
+<section class="subs">
+    <h1>Stay in Style</h1>
+    <p>Subscribe to our newsletter and be first to know about new arrivals, exclusive deals and fashion tips</p>
+    <input type="email" placeholder="Enter your email" class="email">
+     <button class="btn-banner btn-subs">Subscribe <img src="{% static 'images/share-arrow.png' %}" alt=""></button>
+    
+</section>
+
+<section class="footer-section">
+    <div class="footer">
+         <div>
+        <h1>FashionHub</h1>
+        <p>Your destination for premium fashion and timeless style</p>
+    </div>
+    <div>
+        <h1>Shop</h1>
+        <p>New Arrivals</p>
+        <p>Women</p>
+        <p>Men</p>
+        <p>Accessories</p>
+        <p>Sale</p>
+    </div>
+    <div>
+        <h1>Help</h1>
+        <p>FAQ</p>
+        <p>Customer Service</p>
+        <p>Shipping Info</p>
+        <p>Returns</p>
+    </div>
+    <div>
+        <h1>About</h1>
+        <p>Contact</p>
+        <p>Our Policy</p>
+        <p>Cookie Policy</p>
+        <p>Terms of service</p>
+    </div>
+    </div>
+   
+        <hr>
+        <p>&copy2026 FashionHub.All rights reserved</p>
+    
+</section>
+
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

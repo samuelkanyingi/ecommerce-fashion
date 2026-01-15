@@ -1,0 +1,314 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FashionHub Marketplace</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <style>
+         /* The side navigation menu */
+.sidenav {
+  height: 100%; /* 100% Full-height */
+  width: 0; /* 0 width - change this with JavaScript */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Stay on top */
+  top: 0; /* Stay at the top */
+  left: 0;
+  background-color: #111; /* Black*/
+  overflow-x: hidden; /* Disable horizontal scroll */
+  padding-top: 60px; /* Place content 60px from the top */
+  transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+}
+
+/* The navigation menu links */
+.sidenav a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #818181;
+  display: block;
+  transition: 0.3s;
+}
+
+/* When you mouse over the navigation links, change their color */
+.sidenav a:hover {
+  color: #f1f1f1;
+}
+
+/* Position and style the close button (top right corner) */
+.sidenav .closebtn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+}
+
+/* Style page content - use this if you want to push the page content to the right when you open the side navigation */
+#main {
+  transition: margin-left .5s;
+  padding: 20px;
+}
+
+/* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+
+/* Menu sections - sliding animation */
+.menu-section {
+  animation: slideIn 0.4s ease-in-out;
+}
+
+[x-cloak] { 
+  display: none; 
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.menu-section a i {
+  margin-left: 10px;
+  float: right;
+} 
+
+.dropdown {
+    position: relative;
+}
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 200px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    
+}
+.dropbtn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  border-radius: 7px;
+}
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    margin-right: 10px;
+  
+}
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+.dropdown:hover .dropbtn {
+    background-color: #3e8e41;
+}
+    </style>
+</head>
+<body x-data="{ 
+    cartCount: 0,
+    cartTotal: 0,
+    addToCart(price) {
+        this.cartCount++;
+        this.cartTotal += price;
+    }
+}">
+    
+
+
+    
+<!-- HERO -->
+<section class="hero-section">
+    <div class="hero-content">
+        <div class="nav-links">
+
+             <div id="mySidenav" class="sidenav" x-data="{ currentMenu: 'main' }">
+  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+  
+  <!-- Main Menu -->
+  <div x-show="currentMenu === 'main'" class="menu-section">
+    <a href="#">Home</a>
+    <a href="javascript:void(0)" @click="currentMenu = 'women'">Women <i class="fa fa-chevron-right"></i></a>
+    <a href="javascript:void(0)" @click="currentMenu = 'men'">Men <i class="fa fa-chevron-right"></i></a>
+    <a href="#">Accessories</a>
+    <a href="#">Sale</a>
+  </div>
+  
+  <!-- Women Submenu -->
+  <div x-show="currentMenu === 'women'" x-cloak class="menu-section">
+    <a href="javascript:void(0)" @click="currentMenu = 'main'"><i class="fa fa-chevron-left"></i> Back</a>
+    <a href="#">Clothing</a>
+    <a href="#">Shoes</a>
+    <a href="#">Handbags</a>
+  </div>
+
+  <!-- Men Submenu -->
+  <div x-show="currentMenu === 'men'" x-cloak class="menu-section">
+    <a href="javascript:void(0)" @click="currentMenu = 'main'"><i class="fa fa-chevron-left"></i> Back</a>
+    <a href="#">Clothing</a>
+    <a href="#">Shoes</a>
+    <a href="#">Watches</a>
+  </div>
+
+  
+</div>
+
+<!-- Use any element to open the sidenav -->
+<span onclick="openNav()"><i class="fa fa-bars"></i></span>
+
+
+    
+
+
+            <a href="#" class="hero-btn">FashionHub</a>
+            
+            <a href="{% url 'women' %}">Women</a>
+            <a href="{% url 'men' %}">Men</a>
+            <a href="#">Accessories</a>
+            
+        </div>
+        <div class="hero-icons">
+            <img src="{% static 'images/search2.png' %}" alt="search here">
+            <img src="{% static 'images/heart2.png' %}" alt=" love emoji icon">
+            <a href="{% url 'login' %}"><img src="{% static 'images/user2.png' %}" alt="profile icon"></a>
+            <a href="{% url 'cart' %}" id="cart-icon" style="position: relative; display: inline-block; font-size: 20px;">
+                <i class="fa fa-shopping-cart"></i>
+                {% if cart|length > 0 %}
+                <span style="position: absolute; top: -8px; right: -8px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px; font-weight: bold;">{{ cart|length }}</span>
+                {% endif %}
+              </a>
+              </div>
+            
+        </div>
+    </div>
+    
+</section>
+
+<!-- BANNER -->
+<section class="hero-banner2">
+    
+    
+    <div class="banner-text2">
+        
+        <h1>Women's Collection</h1>
+        <p>Explore our collection of the latest trends in women fashion</p>
+        <p>Elevate your wardrobe with piecesthat speak  to your unique style</p>
+        
+    </div>
+    
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section class="featured-section" x-data="{ sortOrder: 'default' }">
+    <div class="featured-women">
+        <h1 id="f-h1">All products</h1>
+        <div class="dropdown">
+            <button class="dropbtn">Filter Items By</button>
+          <div class="dropdown-content">
+            <a href="#" @click.prevent="sortOrder = 'low-to-high'">Price: Low to High</a>
+            <a href="#" @click.prevent="sortOrder = 'high-to-low'">Price: High to Low</a>
+            <a href="#" @click.prevent="sortOrder = 'default'">Default</a>
+          </div>
+        </div>
+    </div>
+    
+    <div class="product-grid" x-data="{
+        products: [
+            { name: 'Women clothing', price: 3999, image: 'images/w1.jpg' },
+            { name: 'Women clothing', price: 999, image: 'images/w2.jpg' },
+            { name: 'Women clothing', price: 399, image: 'images/w3.jpg' },
+            { name: 'Women clothing', price: 99, image: 'images/w4.jpg' },
+            { name: 'Women clothing', price: 99, image: 'images/w5.jpg' },
+            { name: 'Women clothing', price: 9, image: 'images/w6.jpg' }
+        ],
+        get sortedProducts() {
+            let sorted = [...this.products];
+            if (sortOrder === 'low-to-high') {
+                return sorted.sort((a, b) => a.price - b.price);
+            } else if (sortOrder === 'high-to-low') {
+                return sorted.sort((a, b) => b.price - a.price);
+            }
+            return sorted;
+        }
+    }">
+        <template x-for="product in sortedProducts" :key="product.image">
+            <div class="product-card">
+                <img :src="`{% static '' %}${product.image}`" alt="Women Fashion">
+                <h3 x-text="product.name"></h3>
+                <p>KES <span x-text="product.price.toLocaleString()"></span></p>
+                <form hx-post="{% url 'add_to_cart' %}"
+                  hx-target="#cart-icon"
+                  hx-swap="outerHTML"
+                  hx-headers='{"X-CSRFToken": "{{ csrf_token}}"}'>
+                  <input type="hidden" name="name" :value="product.name">
+                  <input type="hidden" name="price" :value="product.price">
+                  <input type="hidden" name="image" :value="product.image">
+                  <button type="submit" class="cartBtn">
+                    <i class="fa fa-cart-plus"></i>Add to Cart
+                  </button>
+                </form>
+            </div>
+        </template>
+    </div>
+</section>
+
+<section class="subs">
+    <h1>Stay in Style</h1>
+    <p>Subscribe to our newsletter and be first to know about new arrivals, exclusive deals and fashion tips</p>
+    <input type="email" placeholder="Enter your email" class="email">
+     <button class="btn-banner btn-subs">Subscribe <img src="{% static 'images/share-arrow.png' %}" alt=""></button>
+    
+</section>
+
+<section class="footer-section">
+    <div class="footer">
+         <div>
+        <h1>FashionHub</h1>
+        <p>Your destination for premium fashion and timeless style</p>
+    </div>
+    <div>
+        <h1>Shop</h1>
+        <p>New Arrivals</p>
+        <p>Women</p>
+        <p>Men</p>
+        <p>Accessories</p>
+        <p>Sale</p>
+    </div>
+    <div>
+        <h1>Help</h1>
+        <p>FAQ</p>
+        <p>Customer Service</p>
+        <p>Shipping Info</p>
+        <p>Returns</p>
+    </div>
+    <div>
+        <h1>About</h1>
+        <p>Contact</p>
+        <p>Our Policy</p>
+        <p>Cookie Policy</p>
+        <p>Terms of service</p>
+    </div>
+    </div>
+   
+        <hr>
+        <p>&copy2026 FashionHub.All rights reserved</p>
+    
+</section>
+
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

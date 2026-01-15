@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login/Register</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+</head>
+<body>
+    <div class="hero-section">
+        <p>FashionHub</p> 
+        <a href="{% url 'index' %}" class="btn-hero">Back to Home</a>
+    </div>
+    <div class="container">
+           
+            <form  hx-post="{% url 'register' %}" hx-target="#messages" hx-swap="innerHTML" class="auth-card form">
+                {% csrf_token %} 
+
+                <h2>Create Account</h2>
+                <div id="messages"></div>
+                <div class="form-group">
+                    <label for="">UserName:</label>
+                    <input type="text" placeholder="Username" name="username" required> 
+
+                </div>
+                <div class="form-group">
+                    <label for="">Email:</label>
+                    <input type="email"  placeholder="Email" name="email" required> 
+
+                </div>
+                <div class="form-group">
+                    <label for="">Password:</label>
+                    <input type="password" placeholder="Password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="">Confirm Password:</label>
+                    <input type="password" placeholder="Confirm Password" name="confirm_password" required>
+    
+                </div>
+                <button type="submit" class="login-btn">Register</button> <br> <br>
+                <a href="{% url 'login' %}">Already have an account?</a>
+            </form>
+            
+        </div>
+</body>
+</html>
