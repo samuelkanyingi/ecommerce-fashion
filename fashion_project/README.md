@@ -55,7 +55,6 @@ A e-commerce platform built with Django, featuring M-Pesa payment integration, r
 
 ### Payment Gateway
 - **M-Pesa Daraja API** - Mobile money payment integration
-- Sandbox environment for testing
 
 ## Installation
 
@@ -197,7 +196,7 @@ ngrok http 8000
 2. Update `MPESA_CALLBACK_URL` in settings.py with your ngrok URL
 3. Use test phone numbers provided by Safaricom Daraja sandbox
 
-## Environment Variables
+
 
 
 ```python
@@ -219,7 +218,7 @@ ngrok http 8000
 - `POST /register/` - User registration
 - `POST /logout/` - User logout
 
-
+```
 ## Contact
 
 For questions or support, please contact: samuelkanyingi2016@gmail.com
