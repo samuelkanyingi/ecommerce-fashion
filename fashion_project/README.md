@@ -1,6 +1,6 @@
 # FashionHub - E-Commerce FashionHub Platform
 
-A modern e-commerce platform built with Django, featuring M-Pesa payment integration, real-time cart updates with HTMX, and a responsive user interface.
+A e-commerce platform built with Django, featuring M-Pesa payment integration, real-time cart updates with HTMX, and a responsive user interface.
 
 ## Features
 
@@ -20,7 +20,6 @@ A modern e-commerce platform built with Django, featuring M-Pesa payment integra
 - User registration and authentication
 - Login/logout functionality
 - Password reset with email verification
-- User profile management
 
 ### 📦 Order Management
 - Multi-step checkout process with progress indicator
@@ -46,7 +45,6 @@ A modern e-commerce platform built with Django, featuring M-Pesa payment integra
 ### Backend
 - **Django 5.2.9** - Python web framework
 - **PostgreSQL** - Database
-- **Pillow** - Image processing
 - **Requests** - HTTP library for M-Pesa API calls
 
 ### Frontend
@@ -199,25 +197,10 @@ ngrok http 8000
 2. Update `MPESA_CALLBACK_URL` in settings.py with your ngrok URL
 3. Use test phone numbers provided by Safaricom Daraja sandbox
 
-## Environment Variables (Production)
+## Environment Variables
 
 
 ```python
-import os
-
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
-DEBUG = False
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST'),
-        'PORT': os.environ.get('DB_PORT'),
-    }
-}
-```
 
 ## API Endpoints
 
