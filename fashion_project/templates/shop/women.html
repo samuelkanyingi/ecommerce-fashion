@@ -85,17 +85,17 @@
 
             </div>
             <div class="left-items">
-            <!-- MENU TOGGLE -->
-            <span onclick="openNav()"><i class="fa fa-bars"></i></span>
+                <!-- MENU TOGGLE -->
+                <span onclick="openNav()"><i class="fa fa-bars"></i></span>
             
-            <!-- TOP NAV LINKS -->
-            <a href="{% url 'index' %}" class="hero-btn">FashionHub</a>
-            {% for sub in subcategories %}
-                <a hx-get="{% url 'women' %}?sub={{ sub }}" 
-                   hx-target=".product-grid" 
-                   hx-swap="innerHTML"
-                   @click="setTimeout(() => document.querySelector('.featured-section').scrollIntoView({ behavior: 'smooth' }), 100)">{{ sub|title }}</a>
-            {% endfor %}
+                <!-- TOP NAV LINKS -->
+                <a href="{% url 'index' %}" class="hero-btn">FashionHub</a>
+                {% for sub in subcategories %}
+                    <a hx-get="{% url 'women' %}?sub={{ sub }}" 
+                    hx-target=".product-grid" 
+                    hx-swap="innerHTML"
+                    @click="setTimeout(() => document.querySelector('.featured-section').scrollIntoView({ behavior: 'smooth' }), 100)">{{ sub|title }}</a>
+                {% endfor %}
             </div>
             <!-- ICONS -->
             <div class="hero-icons">
@@ -132,6 +132,7 @@
         <p>Elevate your wardrobe with pieces that speak to your unique style</p>
     </div>
 </section>
+
 
 <!-- FEATURED PRODUCTS -->
 <section class="featured-section" x-data="{ sortOrder: 'default' }">

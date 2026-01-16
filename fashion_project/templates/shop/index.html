@@ -9,129 +9,122 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <style>
-         /* The side navigation menu */
-.sidenav {
-  height: 100%;
-  width: 0;
-  position: fixed;
-  z-index: 1; 
-  top: 0; 
-  left: 0;
-  background-color: #111; 
-  overflow-x: hidden;
-  padding-top: 60px;
-  transition: 0.5s;
-}
+      /* The side navigation menu */
+      .sidenav {
+        height: 100%;
+        width: 0;
+        position: fixed;
+        z-index: 1; 
+        top: 0; 
+        left: 0;
+        background-color: #111; 
+        overflow-x: hidden;
+        padding-top: 60px;
+        transition: 0.5s;
+      }
 
-/* The navigation menu links */
-.sidenav a {
-  padding: 8px 8px 8px 32px;
-  text-decoration: none;
-  font-size: 25px;
-  color: #818181;
-  display: block;
-  transition: 0.3s;
-}
+      /* The navigation menu links */
+      .sidenav a {
+        padding: 8px 8px 8px 32px;
+        text-decoration: none;
+        font-size: 25px;
+        color: #818181;
+        display: block;
+        transition: 0.3s;
+      }
 
-.sidenav a:hover {
-  color: #f1f1f1;
-}
+      .sidenav a:hover {
+        color: #f1f1f1;
+      }
 
 
-.sidenav .closebtn {
-  position: absolute;
-  top: 0;
-  right: 25px;
-  font-size: 36px;
-  margin-left: 50px;
-}
+      .sidenav .closebtn {
+        position: absolute;
+        top: 0;
+        right: 25px;
+        font-size: 36px;
+        margin-left: 50px;
+      }
 
-#main {
-  transition: margin-left .5s;
-  padding: 20px;
-}
+      #main {
+        transition: margin-left .5s;
+        padding: 20px;
+      }
 
-@media screen and (max-height: 450px) {
-  .sidenav {padding-top: 15px;}
-  .sidenav a {font-size: 18px;}
-}
+      @media screen and (max-height: 450px) {
+        .sidenav {padding-top: 15px;}
+        .sidenav a {font-size: 18px;}
+      }
 
-.menu-section {
-  animation: slideIn 0.4s ease-in-out;
-}
+      .menu-section {
+        animation: slideIn 0.4s ease-in-out;
+      }
 
-[x-cloak] { 
-  display: none; 
-}
+      [x-cloak] { 
+        display: none; 
+      }
 
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
 
-.menu-section a i {
-  margin-left: 10px;
-  float: right;
-} 
+      .menu-section a i {
+        margin-left: 10px;
+        float: right;
+      } 
     </style>
 </head>
 <body>
-    
-
-
-    
 <!-- HERO -->
 <section class="hero-section">
-    <div class="hero-content">
-        <div class="nav-links">
-
-             <div id="mySidenav" class="sidenav" x-data="{ currentMenu: 'main' }">
-  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+  <div class="hero-content">
+    <div class="nav-links">
+      <div id="mySidenav" class="sidenav" x-data="{ currentMenu: 'main' }">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
   
-  <!-- Main Menu -->
-  <div x-show="currentMenu === 'main'" class="menu-section">
-    <a href="#">Home</a>
-    <a href="javascript:void(0)" @click="currentMenu = 'women'">Women <i class="fa fa-chevron-right"></i></a>
-    <a href="javascript:void(0)" @click="currentMenu = 'men'">Men <i class="fa fa-chevron-right"></i></a>
-    <a href="#">Accessories</a>
-    <a href="#">Sale</a>
-  </div>
+          <!-- Main Menu -->
+          <div x-show="currentMenu === 'main'" class="menu-section">
+            <a href="#">Home</a>
+            <a href="javascript:void(0)" @click="currentMenu = 'women'">Women <i class="fa fa-chevron-right"></i></a>
+            <a href="javascript:void(0)" @click="currentMenu = 'men'">Men <i class="fa fa-chevron-right"></i></a>
+            <a href="#">Accessories</a>
+            <a href="#">Sale</a>
+          </div>
   
-  <!-- Women Submenu -->
-  <div x-show="currentMenu === 'women'" class="menu-section">
-    <a href="javascript:void(0)" @click="currentMenu = 'main'"><i class="fa fa-chevron-left"></i> Back</a>
-    <a href="#">Clothing</a>
-    <a href="#">Shoes</a>
-    <a href="#">Handbags</a>
-  </div>
+          <!-- Women Submenu -->
+          <div x-show="currentMenu === 'women'" class="menu-section">
+            <a href="javascript:void(0)" @click="currentMenu = 'main'"><i class="fa fa-chevron-left"></i> Back</a>
+            <a href="#">Clothing</a>
+            <a href="#">Shoes</a>
+            <a href="#">Handbags</a>
+          </div>
 
-  <!-- Men Submenu -->
-  <div x-show="currentMenu === 'men'" class="menu-section">
-    <a href="javascript:void(0)" @click="currentMenu = 'main'"><i class="fa fa-chevron-left"></i> Back</a>
-    <a href="#">Clothing</a>
-    <a href="#">Shoes</a>
-    <a href="#">Watches</a>
-  </div>
+          <!-- Men Submenu -->
+          <div x-show="currentMenu === 'men'" class="menu-section">
+            <a href="javascript:void(0)" @click="currentMenu = 'main'"><i class="fa fa-chevron-left"></i> Back</a>
+            <a href="#">Clothing</a>
+            <a href="#">Shoes</a>
+            <a href="#">Watches</a>
+          </div>
 
-  
-</div>
- <div class="left-items">
-            <a href="{% url 'index' %}" class="hero-btn">FashionHub</a>
-            
-            <a href="{% url 'women' %}">Women</a>
-            <a href="{% url 'men' %}">Men</a>
-            </div>
-        </div>
-        <div class="hero-icons">
-                 <a href="{% url 'login' %}"><img src="{% static 'images/user2.png' %}" alt="profile icon"></a>
-        </div>
+      </div>
+      <div class="left-items">
+        <a href="{% url 'index' %}" class="hero-btn">FashionHub</a>
+        <a href="{% url 'women' %}">Women</a>
+        <a href="{% url 'men' %}">Men</a>
+      </div>
     </div>
+    <div class="hero-icons">
+      <a href="{% url 'login' %}"><img src="{% static 'images/user2.png' %}" alt="profile icon"></a>
+    </div>
+  </div>
     
 </section>
 
@@ -162,7 +155,7 @@
             <img src="{% static 'images/women1.png' %}" alt="Women Fashion">
             <h3>Women Collection</h3>
             
-        </div>
+          </div>
         </a>
         
         <a href="{% url 'men' %}">
@@ -170,16 +163,14 @@
             <img src="{% static 'images/men.jpg' %}" alt="Men Fashion">
             <h3>Men Collection</h3>
             
-        </div>
-        </a>
-        
+          </div>
+        </a>  
     </div>
 </section>
 
 <section class="subs" x-data="{ email: '',   showPopup: false }">
     <h1>Stay in Style</h1>
     <p>Subscribe to our newsletter and be first to know about new arrivals, exclusive deals and fashion tips</p>
-    
     
     <form @submit.prevent="showPopup = true; email = '';setTimeout(() => showPopup = false, 2000)">
     {% csrf_token %}
@@ -222,27 +213,27 @@
 
 <section class="footer-section">
     <div class="footer">
-         <div>
+      <div>
         <h1>FashionHub</h1>
         <p>Your destination for premium fashion and timeless style</p>
-    </div>
+      </div>
     
-    <div>
-        <h1>Help</h1>
-        
-        <p><a style="color: #f1f1f1;" href="{% url 'faq' %}">FAQ</a></p>
-        <p><a style="color: #f1f1f1;" href="{% url 'shipping_info' %}">Shipping Info</a></p>
-        <p><a style="color: #f1f1f1;" href="{% url 'returns' %}">Returns</a></p>
+      <div>
+          <h1>Help</h1>
+          
+          <p><a style="color: #f1f1f1;" href="{% url 'faq' %}">FAQ</a></p>
+          <p><a style="color: #f1f1f1;" href="{% url 'shipping_info' %}">Shipping Info</a></p>
+          <p><a style="color: #f1f1f1;" href="{% url 'returns' %}">Returns</a></p>
 
-    </div>
-    <div>
-        <h1>About</h1>
-        <p><a style="color: #f1f1f1;" href="{% url 'contact' %}">Contact</a></p>
+      </div>
+      <div>
+          <h1>About</h1>
+          <p><a style="color: #f1f1f1;" href="{% url 'contact' %}">Contact</a></p>
       </div>
     </div>
    
-        <hr>
-        <p>&copy2026 FashionHub.All rights reserved</p>
+    <hr>
+      <p>&copy2026 FashionHub.All rights reserved</p>
     
 </section>
 

@@ -75,15 +75,15 @@
                
 
                 <!-- MEN SUBMENU -->
-        <div x-show="currentMenu === 'men'" x-cloak class="menu-section">
-         <a href="javascript:void(0)" @click="currentMenu = 'main'"><i class="fa fa-chevron-left"></i> Back</a>
-              {% for sub in subcategories %}
-              <a hx-get="{% url 'men' %}?sub={{ sub }}" 
-              hx-target=".product-grid" 
-              hx-swap="innerHTML" 
-              @click="closeNav(); setTimeout(() => document.querySelector('.featured-section').scrollIntoView({ behavior: 'smooth' }), 100)">{{ sub|title }}</a>
-              {% endfor %}
-          </div>
+                <div x-show="currentMenu === 'men'" x-cloak class="menu-section">
+                <a href="javascript:void(0)" @click="currentMenu = 'main'"><i class="fa fa-chevron-left"></i> Back</a>
+                    {% for sub in subcategories %}
+                    <a hx-get="{% url 'men' %}?sub={{ sub }}" 
+                    hx-target=".product-grid" 
+                    hx-swap="innerHTML" 
+                    @click="closeNav(); setTimeout(() => document.querySelector('.featured-section').scrollIntoView({ behavior: 'smooth' }), 100)">{{ sub|title }}</a>
+                    {% endfor %}
+                </div>
 
             </div>
 

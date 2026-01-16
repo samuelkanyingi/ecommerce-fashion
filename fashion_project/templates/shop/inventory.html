@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory & Orders - FashionHub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 3px solid #04AA6D;
+            padding-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #333;
+        }
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-pending {
+            background-color: #ffa500;
+            color: white;
+        }
+        .status-paid {
+            background-color: #04AA6D;
+            color: white;
+        }
+        .low-stock {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-card h3 {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #04AA6D;
+        }
+        .category-header {
+            background-color: #e9ecef;
+            font-weight: bold;
+            color: #495057;
+        }
+        .back-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .back-btn:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{% url 'index' %}" class="back-btn">← Back to Store</a>
+        
+        <h1>📊 Inventory & Orders Dashboard</h1>
+
+        <!-- Statistics Cards -->
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Total Orders</h3>
+                <div class="number">{{ total_orders }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Paid Orders</h3>
+                <div class="number">{{ paid_orders }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Pending Orders</h3>
+                <div class="number">{{ pending_orders }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Revenue</h3>
+                <div class="number">KES {{ total_revenue }}</div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div class="dashboard">
+            <!-- Orders Section -->
+            <div class="section">
+                <h2>📦 Recent Orders</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order #</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Receipt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>{{ order.tracking_number }}</td>
+                            <td>{{ order.buyer.username }}</td>
+                            <td>KES {{ order.amount }}</td>
+                            <td>
+                                <span class="status-badge {% if order.status == 'PAID' %}status-paid{% else %}status-pending{% endif %}">
+                                    {{ order.status }}
+                                </span>
+                            </td>
+                            <td>{{ order.mpesa_receipt|default:"—" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #999;">No orders yet</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Product Stock Section -->
+            <div class="section">
+                <h2>📦 Product Inventory</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="category-header">
+                            <td colspan="4">WOMEN'S COLLECTION</td>
+                        </tr>
+                        {% for product in women_products %}
+                        <tr>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.subcategory }}</td>
+                            <td>KES {{ product.price }}</td>
+                            <td class="{% if product.stock < 5 %}low-stock{% endif %}">
+                                {{ product.stock }}{% if product.stock < 5 %} ⚠️{% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #999;">No women's products</td>
+                        </tr>
+                        {% endfor %}
+
+                        <tr class="category-header">
+                            <td colspan="4">MEN'S COLLECTION</td>
+                        </tr>
+                        {% for product in men_products %}
+                        <tr>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.subcategory }}</td>
+                            <td>KES {{ product.price }}</td>
+                            <td class="{% if product.stock < 5 %}low-stock{% endif %}">
+                                {{ product.stock }}{% if product.stock < 5 %} ⚠️{% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #999;">No men's products</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

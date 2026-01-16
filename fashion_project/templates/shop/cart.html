@@ -123,10 +123,20 @@ document.body.addEventListener('htmx:configRequest', (e) => {
                 {% endfor %}
             </div>
             <div class="order-summary" x-data="{ open: false, step: 1, phone: '', email: '', city: '', location: '' }">
-    <h2>Order Summary</h2>
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+        <h2 style="margin: 0;">Order Summary</h2>
+        <div id="order-status" 
+             {% if order and order.status == 'PENDING' %}hx-get="{% url 'check_order_status' %}" hx-trigger="every 3s" hx-swap="outerHTML"{% endif %}>
+        {% if order %}
+        <span style="padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; {% if order.status == 'PAID' %}background-color: #04AA6D; color: white;{% else %}background-color: #ffa500; color: white;{% endif %}">
+            {{ order.status }}
+        </span>
+        {% endif %}
+        </div>
+    </div>
     <div id="order-number">
     {% if order and cart %}
-    <p><strong>Order Number:</strong> #{{ order.id }}</p>
+    <p><strong>Order Number:</strong> {{ order.tracking_number }}</p>
     {% endif %}
     </div>
 

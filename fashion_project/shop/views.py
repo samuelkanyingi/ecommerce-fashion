@@ -1,24 +1,19 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from django.contrib import messages
-from django.contrib.auth.hashers import make_password
-from .models import CustomUser, Product, Order
-from django.contrib.auth import authenticate, login
+from django.http import HttpResponse, JsonResponse
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.core.mail import send_mail
-from django.contrib.auth import logout
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from .models import Order
+from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
+from django.db import models
+from django.conf import settings
+from .models import Product, Order
+from .utils.mpesa import get_mpesa_access_token
 import datetime
 import base64
 import requests
 import json
-from django.conf import settings
-from django.http import JsonResponse, HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from .utils.mpesa import get_mpesa_access_token
 
 
 
@@ -26,8 +21,7 @@ def index(request):
     cart = request.session.get('cart', [])
     return render(request, 'shop/index.html', {'cart': cart})
 
-def auth(request):
-    return render(request, 'shop/auth.html')
+
 
 
 def register(request):
@@ -46,9 +40,9 @@ def register(request):
         if password != confirm_password:
             return HttpResponse('<div style="color: red; margin-bottom: 10px"> Passwords do not match</div>')
 
-        if CustomUser.objects.filter(username=username).exists():
+        if User.objects.filter(username=username).exists():
             return HttpResponse('<div style="color: red; margin-bottom: 10px"> Username already taken</div>')
-        user = User.objects.create_user(
+        User.objects.create_user(
             username=username,
             email=email,
             password=password
@@ -69,7 +63,7 @@ def login_user(request):
          login(request, user)
          next_url = request.GET.get('next', 'index')
          response = HttpResponse('')
-         # If next_url looks like a URL name (no slashes), reverse it; otherwise use as-is
+
          if '/' not in next_url:
              response['HX-Redirect'] = reverse(next_url)
          else:
@@ -252,9 +246,6 @@ def remove_item(request):
             "order": order
         })
 
-def password_reset(request):
-    return render(request, "shop/password_reset.html")
-
 
 
 def stk_push(request, order_id):
@@ -263,12 +254,18 @@ def stk_push(request, order_id):
     email = request.POST.get('email')
     city = request.POST.get('city')
     location = request.POST.get('location')
-    amount = request.POST.get('amount', order.amount)
+    #amount = request.POST.get('amount', order.amount)
     phone_input = request.POST.get('phone')
 
     if phone_input:
         order.phone = phone_input
-        order.save()
+    if email:
+        order.email = email
+    if city:
+        order.city = city
+    if location:
+        order.location = location
+    order.save()
 
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     password = base64.b64encode(
@@ -281,6 +278,7 @@ def stk_push(request, order_id):
         return JsonResponse({"error": "Phone number is required"}, status=400)
     
     phone = order.phone.strip()
+
     phone = phone.replace('+', '').replace(' ', '').replace('-', '')
     if phone.startswith('0'):
         phone = '254' + phone[1:]
@@ -306,6 +304,9 @@ def stk_push(request, order_id):
         "Content-Type": "application/json"
     }
 
+    print("Payload:", payload)  
+    print("Headers:", headers)  
+    
     response = requests.post(
         "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
         json=payload,
@@ -313,44 +314,8 @@ def stk_push(request, order_id):
     )
 
     response_data = response.json()
-
-    if email:
-        try:
-            subject = f"FashionHub Order #{order.id} - Payment Initiated"
-            message = f"""
-            Dear Customer,
-
-            Your payment request has been initiated successfully!
-
-            Order Details:
-            - Order Number: #{order.id}
-            - Amount: KES {order.amount}
-            - Phone: {phone}
-            
-            Delivery Information:
-            - City: {city if city else 'Not provided'}
-            - Location: {location if location else 'Not provided'}
-
-            Please check your phone for the M-Pesa payment prompt.
-
-            Delivery takes 1 to 2 days
-
-            Thank you for shopping with FashionHub!
-
-            Best regards,
-            The FashionHub Team
-            """
-            
-            send_mail(
-                subject,
-                message,
-                settings.EMAIL_HOST_USER,
-                [email],
-                fail_silently=True,
-            )
-        except Exception as e:
-            print(f"Email sending failed: {e}")
-
+    print("M-Pesa Response:", response_data)  
+    
     if response_data.get("ResponseCode") == "0":
         return HttpResponse("""
             <div style="text-align: center; padding: 20px; background: #d4edda; color: #155724; border-radius: 6px; margin: 20px 0;">
@@ -370,44 +335,88 @@ def stk_push(request, order_id):
 
 @csrf_exempt
 def mpesa_callback(request):
-    data = json.loads(request.body)
-
-    callback = data["Body"]["stkCallback"]
-
-    if callback["ResultCode"] == 0:
-        metadata = callback["CallbackMetadata"]["Item"]
-
-        receipt = next(
-            item["Value"] for item in metadata if item["Name"] == "MpesaReceiptNumber"
-        )
-
-        order = Order.objects.filter(status="ESCROW_PENDING").last()
-        order.mpesa_receipt = receipt
-        order.status = "ESCROWED"
-        order.save()
-
-    return HttpResponse("OK")
-
-
-
-@csrf_exempt
-def checkout_stk(request, order_id):
-    if request.method == "POST":
-        phone = request.POST.get("phone")
+    try:
+        data = json.loads(request.body)
+        print("M-Pesa callback received:", data)
         
-        cart = request.session.get("cart", [])
-        total = sum(item["price"] * item.get("quantity", 1) for item in cart)
+        callback = data.get("Body", {}).get("stkCallback", {})
         
-        try:
-            order = Order.objects.get(id=order_id)
-            order.phone = phone
-            order.amount = int(total)
-            order.save()
-        except Order.DoesNotExist:
-            return JsonResponse({"error": "Order not found"}, status=404)
-        
-        return stk_push(request, order.id)
+        # Check if payment was successful
+        if callback.get("ResultCode") == 0:
+            # Extract M-Pesa receipt number
+            metadata = callback.get("CallbackMetadata", {}).get("Item", [])
+            receipt = None
+            
+            for item in metadata:
+                if item.get("Name") == "MpesaReceiptNumber":
+                    receipt = item.get("Value")
+                    break
+            
+            # Get the order reference from callback
+            #checkout_request_id = callback.get("CheckoutRequestID")
+            
+            # Find the most recent pending order and update it
+            order = Order.objects.filter(status="PENDING").order_by('-id').first()
+            
+            if order and receipt:
+                order.mpesa_receipt = receipt
+                order.status = "PAID"
+                order.save()
+                print(f"Order {order.tracking_number} updated - Receipt: {receipt}, Status: PAID")
+                
+                # Get email, city, location from order
+                email = order.email or order.buyer.email
+                city = order.city
+                location = order.location
+                
+                # Send confirmation email with receipt
+                if email:
+                    try:
+                        subject = f"Payment Confirmed - FashionHub Order {order.tracking_number}"
+                        message = f"""
+                        Dear {order.buyer.username},
+
+                        Your payment has been successfully received!
+
+                        Payment Details:
+                        - M-Pesa Receipt: {receipt}
+                        - Order Number: {order.tracking_number}
+                        - Amount Paid: KES {order.amount}
+                        - Phone: {order.phone}
+                        - Payment Status: PAID
+
+                        Delivery Information:
+                        - City: {city if city else 'Not provided'}
+                        - Location: {location if location else 'Not provided'}
+
+                        Your order is now being processed and will be delivered within 1-2 days.
+
+                        Thank you for shopping with FashionHub!
+
+                        Best regards,
+                        The FashionHub Team
+                        """
+                        
+                        send_mail(
+                            subject,
+                            message,
+                            settings.EMAIL_HOST_USER,
+                            [email],
+                            fail_silently=False,
+                        )
+                        print(f"Confirmation email sent to {email}")
+                    except Exception as e:
+                        print(f"Email sending failed: {e}")
+            else:
+                print("No pending order found or no receipt number")
+        else:
+            result_desc = callback.get("ResultDesc", "Payment failed")
+            print(f"Payment failed: {result_desc}")
+            
+    except Exception as e:
+        print(f"Callback error: {e}")
     
+    return HttpResponse("OK")
 
 
 def featured_products(request):
@@ -489,6 +498,63 @@ def contact(request):
         name = request.POST.get("name")
         email = request.POST.get("email")
         message = request.POST.get("message")
+        
+        # Send contact email to admin
+        try:
+            subject = f"Contact Form: Message from {name}"
+            admin_message = f"""
+            You have received a new contact form submission:
+            
+            Name: {name}
+            Email: {email}
+            
+            Message:
+            {message}
+            
+            ---
+            Reply directly to: {email}
+            """
+            
+            send_mail(
+                subject,
+                admin_message,
+                settings.EMAIL_HOST_USER,
+                [settings.EMAIL_HOST_USER],  # Send to yourself
+                fail_silently=False,
+            )
+            
+            index_url = reverse('index')
+            return HttpResponse(f"""
+                <div style="padding: 20px;">
+                    <div style="margin-bottom: 20px;">
+                        <a href="{index_url}" style="display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: 500;">
+                            ← Back to Home
+                        </a>
+                    </div>
+                    <hr style="border: none; border-top: 2px solid #ddd; margin: 20px 0;">
+                    <div style="text-align: center; padding: 40px; background: #d4edda; color: #155724; border-radius: 8px;">
+                        <h2 style="margin: 0 0 15px 0;">✓ Thank You for Contacting Us!</h2>
+                        <p style="margin: 0; font-size: 16px;">We've received your message and will get back to you soon.</p>
+                    </div>
+                </div>
+            """)
+        except Exception as e:
+            index_url = reverse('index')
+            return HttpResponse(f"""
+                <div style="padding: 20px;">
+                    <div style="margin-bottom: 20px;">
+                        <a href="{index_url}" style="display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: 500;">
+                            ← Back to Home
+                        </a>
+                    </div>
+                    <hr style="border: none; border-top: 2px solid #ddd; margin: 20px 0;">
+                    <div style="text-align: center; padding: 40px; background: #f8d7da; color: #721c24; border-radius: 8px;">
+                        <h2 style="margin: 0 0 15px 0;">✗ Error</h2>
+                        <p style="margin: 0; font-size: 16px;">Failed to send message. Please try again.</p>
+                    </div>
+                </div>
+            """)
+    
     return render(request, "shop/contact.html")
 
 def shipping_info(request):
@@ -501,22 +567,49 @@ def logout_view(request):
     logout(request)
     return redirect("index")
 
+@user_passes_test(lambda u: u.is_staff)
+def inventory(request):
+    """Dashboard for tracking orders and product inventory - Admin only"""
+    # Get all orders
+    orders = Order.objects.all().order_by('-id')[:20]  
+    
+    # Get statistics
+    total_orders = Order.objects.count()
+    paid_orders = Order.objects.filter(status='PAID').count()
+    pending_orders = Order.objects.filter(status='PENDING').count()
+    total_revenue = Order.objects.filter(status='PAID').aggregate(total=models.Sum('amount'))['total'] or 0
+    
+    # Get products by category
+    women_products = Product.objects.filter(category='women').order_by('name')
+    men_products = Product.objects.filter(category='men').order_by('name')
+    
+    return render(request, 'shop/inventory.html', {
+        'orders': orders,
+        'total_orders': total_orders,
+        'paid_orders': paid_orders,
+        'pending_orders': pending_orders,
+        'total_revenue': total_revenue,
+        'women_products': women_products,
+        'men_products': men_products,
+    })
 
-
-def save_shipping(request):
-    if request.method == "POST":
-        address = request.POST.get("address")
-        city = request.POST.get("city")
-        postal_code = request.POST.get("postal_code")
-        phone = request.POST.get("phone")
-
-        order = Order.objects.filter(buyer=request.user, status="PENDING").last()
-        if order:
-            order.address = address
-            order.city = city
-            order.postal_code = postal_code
-            order.phone = phone
-            order.save()
-            return JsonResponse({"success": True})
-        return JsonResponse({"success": False, "error": "No pending order"})
-    return JsonResponse({"success": False, "error": "Invalid method"})
+def check_order_status(request):
+    """Check if order status has changed to PAID"""
+    if not request.user.is_authenticated:
+        return HttpResponse("")
+    
+    order = Order.objects.filter(buyer=request.user).order_by('-id').first()
+    
+    if order:
+        # Stop polling if status is PAID
+        polling_attr = 'hx-get="/check-order-status/" hx-trigger="every 3s" hx-swap="outerHTML"' if order.status == 'PENDING' else ''
+        bg_color = '#04AA6D' if order.status == 'PAID' else '#ffa500'
+        
+        return HttpResponse(f"""
+        <div id="order-status" {polling_attr}>
+        <span style="padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; background-color: {bg_color}; color: white;">
+            {order.status}
+        </span>
+        </div>
+        """)
+    return HttpResponse("")

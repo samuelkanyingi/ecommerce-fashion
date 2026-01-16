@@ -52,6 +52,14 @@
 <!-- Out of band swap for order number -->
 <div id="order-number" hx-swap-oob="true">
 {% if order and cart %}
-<p><strong>Order Number:</strong> #{{ order.id }}</p>
+<p><strong>Order Number:</strong> {{ order.tracking_number }}</p>
+{% endif %}
+</div>
+<!-- OOB swap for order status -->
+<div id="order-status" hx-swap-oob="true">
+{% if order %}
+<span style="padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; {% if order.status == 'PAID' %}background-color: #04AA6D; color: white;{% else %}background-color: #ffa500; color: white;{% endif %}">
+    {{ order.status }}
+</span>
 {% endif %}
 </div>
