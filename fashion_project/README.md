@@ -194,7 +194,7 @@ Access the admin panel at `http://127.0.0.1:8000/admin/`
 ngrok http 8000
 ```
 2. Update `MPESA_CALLBACK_URL` in settings.py with your ngrok URL
-3. Use test phone numbers provided by Safaricom Daraja sandbox
+
 
 
 
