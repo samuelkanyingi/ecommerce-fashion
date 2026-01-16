@@ -11,24 +11,14 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from .models import Order
-
-
 import datetime
 import base64
 import requests
 import json
-
 from django.conf import settings
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-
 from .utils.mpesa import get_mpesa_access_token
-
-
-
-
-
-
 
 
 
@@ -47,8 +37,6 @@ def register(request):
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
 
-
-
         print("Username:", username)
         print("Email:", email)
         print("Password:", password)
@@ -56,27 +44,20 @@ def register(request):
         print(username)
 
         if password != confirm_password:
-            # messages.error(request, 'Passwords do not match')
             return HttpResponse('<div style="color: red; margin-bottom: 10px"> Passwords do not match</div>')
 
         if CustomUser.objects.filter(username=username).exists():
             return HttpResponse('<div style="color: red; margin-bottom: 10px"> Username already taken</div>')
-        # user = CustomUser(username=username, email=email)
-        # user.set_password(password)
-        # user.save()
         user = User.objects.create_user(
             username=username,
             email=email,
             password=password
         )
 
-        #return HttpResponse('<div style="color: green;">Account created successfully!</div>')
         response = HttpResponse('redirect... ')
         response['HX-Redirect'] = '/login'
         return response
     return render(request, "shop/register.html")
-    # else:
-    #     return render(request, 'shop/register.html')
 
 def login_user(request): 
     if request.method == 'POST':
@@ -103,19 +84,6 @@ def login_user(request):
     return render(request, 'shop/login.html')
 
 
-
-
-
-
-
-
-
-# def women(request):
-#     cart = request.session.get('cart', [])
-#     return render(request, 'shop/women.html', {'cart': cart})
-
-# 
-
 @login_required(login_url="login")
 def women(request):
     cart = request.session.get('cart', [])
@@ -138,24 +106,6 @@ def women(request):
         'products': products,
         "subcategories": ["clothing", "shoes", "handbags"]
     })
-
-
-
-# def men(request):
-#     cart = request.session.get('cart', [])
-#     sort = request.GET.get('sort')
-
-#     products = Product.objects.filter(category='men')
-
-#     if sort == 'low-to-high':
-#         products = products.order_by('price')
-#     elif sort == 'high-to-low':
-#         products = products.order_by('-price')
-
-#     return render(request, 'shop/men.html', {
-#         'cart': cart,
-#         'products': products
-#     })
 
 
 @login_required(login_url="login")
@@ -188,11 +138,9 @@ def add_to_cart(request):
     if request.method == "POST":
         cart = request.session.get("cart", [])
 
-        # Check if product_id is sent (new approach) or individual fields (old approach)
         product_id = request.POST.get("product_id")
         
         if product_id:
-            # New approach: get product from database
             try:
                 product = Product.objects.get(id=product_id)
                 item = {
@@ -204,7 +152,6 @@ def add_to_cart(request):
             except Product.DoesNotExist:
                 return HttpResponse("Product not found", status=404)
         else:
-            # Old approach: get from POST data
             item = {
                 "name": request.POST.get("name"),
                 "price": int(request.POST.get("price", 0)),
@@ -215,7 +162,6 @@ def add_to_cart(request):
         cart.append(item)
         request.session["cart"] = cart
 
-        # Return updated cart icon HTML for HTMX
         return HttpResponse(f'''
             <a href="{reverse('cart')}" id="cart-icon" style="position: relative; display: inline-block; font-size: 20px;">
                 <i class="fa fa-shopping-cart"></i>
@@ -223,28 +169,16 @@ def add_to_cart(request):
             </a>
         ''')
     
-# def cart(request):
-#     cart = request.session.get("cart", [])
-#     total = sum(item["price"] * item.get("quantity", 1) for item in cart)
-
-#     return render(request, "shop/cart.html",
-#                   {
-#                       "cart": cart,
-#                       "total": total,
-#                       "order": order,
-#                   })
 
 @login_required
 def cart(request):
     cart_items = request.session.get("cart", [])
     
-    # Add total_price for each item
     for item in cart_items:
         item["total_price"] = item["price"] * item.get("quantity", 1)
     
     total = sum(item["total_price"] for item in cart_items)
 
-    # Create/get pending order only if user is authenticated
     order = None
     if request.user.is_authenticated:
         order, created = Order.objects.get_or_create(
@@ -253,7 +187,6 @@ def cart(request):
             defaults={"amount": total}
         )
         
-        # Update the amount if order already existed
         if not created and order.amount != total:
             order.amount = total
             order.save()
@@ -282,7 +215,6 @@ def update_cart (request):
         request.session["cart"] =  cart
         total = sum(i["price"] * i.get("quantity", 1) for i in cart)
         
-        # Get order if user is authenticated
         order = None
         if request.user.is_authenticated:
             order = Order.objects.filter(buyer=request.user, status="PENDING").first()
@@ -299,13 +231,10 @@ def remove_item(request):
         cart = request.session.get("cart", [])
         name = request.POST.get("name")
 
-        # Remove the item from the cart
         cart = [item for item in cart if item["name"] != name]
         request.session["cart"] = cart
 
-        # Check if the cart is now empty
         if not cart and request.user.is_authenticated:
-            # Delete the pending order
             Order.objects.filter(
                 buyer=request.user,
                 status="PENDING"
@@ -313,7 +242,6 @@ def remove_item(request):
 
         total = sum(i["price"] * i.get("quantity", 1) for i in cart)
         
-        # Get order if user is authenticated
         order = None
         if request.user.is_authenticated:
             order = Order.objects.filter(buyer=request.user, status="PENDING").first()
@@ -329,27 +257,15 @@ def password_reset(request):
 
 
 
-
-
-
-
-
-
-
-
-
-
 def stk_push(request, order_id):
     order = Order.objects.get(id=order_id)
 
-    # Get email, city, location and amount from POST data
     email = request.POST.get('email')
     city = request.POST.get('city')
     location = request.POST.get('location')
     amount = request.POST.get('amount', order.amount)
     phone_input = request.POST.get('phone')
 
-    # Update order with phone if provided
     if phone_input:
         order.phone = phone_input
         order.save()
@@ -361,17 +277,13 @@ def stk_push(request, order_id):
 
     access_token = get_mpesa_access_token()
 
-    # Format phone number to 254XXXXXXXXX format
     if not order.phone:
         return JsonResponse({"error": "Phone number is required"}, status=400)
     
     phone = order.phone.strip()
-    # Remove any + or spaces
     phone = phone.replace('+', '').replace(' ', '').replace('-', '')
-    # If it starts with 0, replace with 254
     if phone.startswith('0'):
         phone = '254' + phone[1:]
-    # If it starts with 7 or 1, prepend 254
     elif phone.startswith('7') or phone.startswith('1'):
         phone = '254' + phone
 
@@ -402,7 +314,6 @@ def stk_push(request, order_id):
 
     response_data = response.json()
 
-    # Send confirmation email if email was provided
     if email:
         try:
             subject = f"FashionHub Order #{order.id} - Payment Initiated"
@@ -440,7 +351,6 @@ def stk_push(request, order_id):
         except Exception as e:
             print(f"Email sending failed: {e}")
 
-    # Return simple success/error message
     if response_data.get("ResponseCode") == "0":
         return HttpResponse("""
             <div style="text-align: center; padding: 20px; background: #d4edda; color: #155724; border-radius: 6px; margin: 20px 0;">
@@ -456,8 +366,6 @@ def stk_push(request, order_id):
                 <p style="margin: 0;">{error_message}</p>
             </div>
         """)
-
-
 
 
 @csrf_exempt
@@ -487,11 +395,9 @@ def checkout_stk(request, order_id):
     if request.method == "POST":
         phone = request.POST.get("phone")
         
-        # Get cart from session
         cart = request.session.get("cart", [])
         total = sum(item["price"] * item.get("quantity", 1) for item in cart)
         
-        # Get the order and update it
         try:
             order = Order.objects.get(id=order_id)
             order.phone = phone
@@ -500,13 +406,11 @@ def checkout_stk(request, order_id):
         except Order.DoesNotExist:
             return JsonResponse({"error": "Order not found"}, status=404)
         
-        # Call stk_push with the request and order_id
         return stk_push(request, order.id)
     
 
 
 def featured_products(request):
-    # Default order
     sort_order = request.GET.get('sort', 'default')
 
     if sort_order == 'low-to-high':
@@ -534,7 +438,6 @@ def subscribe(request):
             })
         
         try:
-            # Send welcome email to subscriber
             subject = "Welcome to FashionHub Newsletter!"
             message = f"""
             Dear Subscriber,
@@ -586,13 +489,10 @@ def contact(request):
         name = request.POST.get("name")
         email = request.POST.get("email")
         message = request.POST.get("message")
-        # later you can email this or save it
     return render(request, "shop/contact.html")
 
 def shipping_info(request):
     return render(request, "shop/shipping_info.html")
-
-
 
 def returns(request):
     return render(request, "shop/returns.html")
@@ -603,15 +503,6 @@ def logout_view(request):
 
 
 
-
-
-
-
-
-
-
-
-
 def save_shipping(request):
     if request.method == "POST":
         address = request.POST.get("address")
@@ -619,7 +510,6 @@ def save_shipping(request):
         postal_code = request.POST.get("postal_code")
         phone = request.POST.get("phone")
 
-        # Save this info to the current user's order (you might want a session-based cart)
         order = Order.objects.filter(buyer=request.user, status="PENDING").last()
         if order:
             order.address = address

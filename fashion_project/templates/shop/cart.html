@@ -148,7 +148,6 @@ document.body.addEventListener('htmx:configRequest', (e) => {
 
             <!-- Progress Bar -->
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; position: relative; padding-top: 0;">
-                <!-- Line connecting circles - positioned at circle center -->
                 <div style="position: absolute; top: 20px; left: 16.67%; right: 16.67%; height: 3px; background: #e0e0e0; z-index: 0;"></div>
                 <div :style="`position: absolute; top: 20px; left: 16.67%; height: 3px; background: #04AA6D; z-index: 0; width: ${(step - 1) * 33.33}%; transition: width 0.3s ease;`"></div>
                 
@@ -234,16 +233,6 @@ document.body.addEventListener('htmx:configRequest', (e) => {
     </div>
     {% endif %}
 </div>
-
-
-
-
-
-
-
-
-
-
         </div>
     </div>
     

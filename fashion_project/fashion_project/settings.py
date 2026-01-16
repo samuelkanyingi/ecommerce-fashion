@@ -141,22 +141,12 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-
-
-
-
-
-
-
-
-
 MPESA_ENV = "sandbox"
 
 MPESA_CONSUMER_KEY = "NtKpRWVBWgdPfTmhuw3gpNwNagwxx4A9a84CCFAjx16pJN7J"
 MPESA_CONSUMER_SECRET = "dbThp41IkAhiCwm0jvxf7ncJjzFuAaLEubvMWpzgMLFPvLJseWxqPZ5lZdDjunzu"
 
-MPESA_SHORTCODE = "174379"  # sandbox Paybill
+MPESA_SHORTCODE = "174379"  
 MPESA_PASSKEY = "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919"
 
 MPESA_CALLBACK_URL = "https://pluckiest-lore-presanguine.ngrok-free.dev/mpesa/callback/"

@@ -72,15 +72,7 @@
                     
                 </div>
 
-                <!-- WOMEN SUBMENU -->
-                <!-- <div x-show="currentMenu === 'women'" x-cloak class="menu-section">
-                    <a href="javascript:void(0)" @click="currentMenu = 'main'"><i class="fa fa-chevron-left"></i> Back</a>
-                    {% for sub in subcategories %}
-                      <a hx-get="{% url 'women' %}?sub={{ sub }}" 
-                      hx-target=".product-grid" 
-                      hx-swap="innerHTML">{{ sub|title }}</a>
-                    {% endfor %}
-                </div> -->
+               
 
                 <!-- MEN SUBMENU -->
         <div x-show="currentMenu === 'men'" x-cloak class="menu-section">
@@ -120,7 +112,6 @@
               {% else %}
                 <a href="{% url 'login' %}?next={{ request.path }}">Login</a>
               {% endif %}
-                <!-- <a href="{% url 'login' %}?next={{ request.path }}"><img src="{% static 'images/user2.png' %}" alt="profile"></a> -->
                 <a href="{% url 'cart' %}" id="cart-icon" style="position: relative; display: inline-block; font-size: 20px;">
                     <i class="fa fa-shopping-cart"></i>
                     {% if cart|length > 0 %}
