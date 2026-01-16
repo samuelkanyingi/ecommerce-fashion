@@ -164,3 +164,10 @@ MPESA_CALLBACK_URL = "https://pluckiest-lore-presanguine.ngrok-free.dev/mpesa/ca
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+
+
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'index'
+LOGOUT_REDIRECT_URL = 'login'

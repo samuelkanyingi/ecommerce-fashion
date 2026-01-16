@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Returns & Refunds | FashionHub</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<style>
+
+     .hero-section {
+        border-bottom: 2px solid #ddd;
+        padding-top: 20px;
+        padding-bottom: 20px;
+        padding-left: 20px;
+        width: 100%;
+        margin: 0;
+    }
+    
+
+    
+    .simple-page {
+    max-width: 900px;
+    margin: 60px auto;
+    padding: 0 20px;
+    line-height: 1.7;
+}
+
+.simple-page h1 {
+    margin-bottom: 10px;
+}
+
+.simple-page h2 {
+    margin-top: 30px;
+}
+
+</style>
+<body>
+
+<section class="hero-section">
+    <div class="hero-content">
+        <a href="{% url 'index' %}" class="hero-btn">FashionHub</a>
+    </div>
+</section>
+<section class="simple-page">
+    <h1>Returns & Refunds</h1>
+    <p>We want you to love what you wear. If something isn’t right, here’s how we handle it.</p>
+
+    <h2>Return Eligibility</h2>
+    <ul>
+        <li>Items can be returned within <strong>7 days</strong> of delivery</li>
+        <li>Items must be unused, unwashed, and in original packaging</li>
+        <li>Proof of purchase is required</li>
+    </ul>
+
+    
+    
+
+    <h2>How to Request a Return</h2>
+    <ol>
+        <li>Contact us within 7 days of delivery</li>
+        <li>Provide your order number and reason for return</li>
+        <li>Our support team will guide you through the process</li>
+    </ol>
+
+    <h2>Refund Process</h2>
+    <p>
+        Once we receive and inspect the returned item, refunds will be processed
+        within <strong>5–7 business days</strong>.
+    </p>
+    
+
+    <h2>Exchanges</h2>
+    <p>
+        Exchanges are subject to stock availability.
+        If your requested size or item is unavailable, a refund will be issued instead.
+    </p>
+
+    <h2>Damaged or Incorrect Items</h2>
+    <p>
+        If you receive a damaged or incorrect item, contact us within
+        <strong>48 hours</strong> of delivery with clear photos.
+        We’ll sort it out fast.
+    </p>
+
+    <h2>Contact Us</h2>
+    <p>
+        Email: <strong>support@fashionhub.co.ke</strong><br>
+        Phone: <strong>+254 700 123 456</strong>
+    </p>
+</section>
+
+</body>
+</html>

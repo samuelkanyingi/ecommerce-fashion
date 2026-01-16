@@ -47,6 +47,15 @@ urlpatterns = [
         path('mpesa/stk/<int:order_id>/', views.checkout_stk, name='stk_push'),
 
     path("mpesa/callback/", views.mpesa_callback, name="mpesa_callback"),
+    path("subscribe/", views.subscribe, name="subscribe"),
+    path("faq/", views.faq, name="faq"),
+    path("contact/", views.contact, name="contact"),
+    path("shipping_info/", views.shipping_info, name="shipping_info"),
+    path("returns/", views.returns, name="returns"),
+    path("logout/", views.logout_view, name="logout"),
+    path('save-shipping/', views.save_shipping, name='save_shipping'),
+    path('api/mpesa/checkout/<int:order_id>/', views.checkout_stk, name='checkout_stk'),  # Add this
+
 
 ]
 

@@ -49,6 +49,9 @@ body {
 
 
 
+[x-cloak] {
+    display: none !important;
+}
 
 
 
@@ -74,6 +77,7 @@ body {
     justify-content: space-between;
     position: relative;
 }
+
 .hero-btn {
     font-size: larger;
 }
@@ -132,7 +136,7 @@ body {
 .hero-banner2  {
     background-color: #ec455c;
     padding: 199px;
-    min-height: 200px;
+    min-height: 50px;
     display: flex;
     align-items: center;
     margin-bottom: 50px;
@@ -287,3 +291,4 @@ body {
 .cartBtn:hover {
     background-color: green;
 }
+

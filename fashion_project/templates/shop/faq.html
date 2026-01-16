@@ -1,0 +1,119 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FAQ | FashionHub</title>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            height: 100%;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .faq-container {
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 0 20px;
+            flex: 1;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid #ddd;
+            padding: 20px 0;
+        }
+
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .faq-answer {
+            margin-top: 10px;
+            color: #555;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- You can include your navbar here later -->
+<section class="hero-section">
+    <div class="hero-content">
+        <a href="{% url 'index' %}" class="hero-btn">FashionHub</a>
+    </div>
+</section>
+
+<section class="faq-container">
+    <h1>Frequently Asked Questions</h1>
+
+    <div x-data="{ open: null }">
+
+        <!-- FAQ 1 -->
+        <div class="faq-item">
+            <div class="faq-question" @click="open === 1 ? open = null : open = 1">
+                <span>How long does delivery take?</span>
+                <span x-text="open === 1 ? '−' : '+'"></span>
+            </div>
+            <div x-show="open === 1" x-transition class="faq-answer">
+                Delivery typically takes 2–5 business days depending on your location in Kenya.
+            </div>
+        </div>
+
+        <!-- FAQ 2 -->
+        <div class="faq-item">
+            <div class="faq-question" @click="open === 2 ? open = null : open = 2">
+                <span>Can I return an item?</span>
+                <span x-text="open === 2 ? '−' : '+'"></span>
+            </div>
+            <div x-show="open === 2" x-transition class="faq-answer">
+                Yes. Items can be returned within 7 days if unused and in original condition.
+            </div>
+        </div>
+
+        <!-- FAQ 3 -->
+        <div class="faq-item">
+            <div class="faq-question" @click="open === 3 ? open = null : open = 3">
+                <span>Do you offer nationwide delivery?</span>
+                <span x-text="open === 3 ? '−' : '+'"></span>
+            </div>
+            <div x-show="open === 3" x-transition class="faq-answer">
+                Yes. We deliver across Kenya using trusted courier partners.
+            </div>
+        </div>
+
+        <!-- FAQ 4 -->
+        <div class="faq-item">
+            <div class="faq-question" @click="open === 4 ? open = null : open = 4">
+                <span>How do I track my order?</span>
+                <span x-text="open === 4 ? '−' : '+'"></span>
+            </div>
+            <div x-show="open === 4" x-transition class="faq-answer">
+                After checkout, you’ll receive a tracking link via email.
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<section class="footer-section">
+    <hr>
+    <p>&copy; 2026 FashionHub. All rights reserved.</p>
+</section>
+
+</body>
+</html>

@@ -3,6 +3,7 @@
 <html>
 <head>
     <title>FashionHub Marketplace</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -124,31 +125,29 @@
 
   
 </div>
-
+ <div class="left-items">
 <!-- Use any element to open the sidenav -->
-<span onclick="openNav()"><i class="fa fa-bars"></i></span>
+<!-- <span onclick="openNav()"><i class="fa fa-bars"></i></span> -->
 
 
     
 
 
-            <a href="#" class="hero-btn">FashionHub</a>
+            <a href="{% url 'index' %}" class="hero-btn">FashionHub</a>
             
             <a href="{% url 'women' %}">Women</a>
             <a href="{% url 'men' %}">Men</a>
-            <a href="#">Accessories</a>
-            
+            <!-- <a href="#">Accessories</a> -->
+            </div>
         </div>
         <div class="hero-icons">
-            <img src="{% static 'images/search2.png' %}" alt="search here">
-            <img src="{% static 'images/heart2.png' %}" alt=" love emoji icon">
-            <a href="{% url 'login' %}"><img src="{% static 'images/user2.png' %}" alt="profile icon"></a>
-            <a href="{% url 'cart' %}" style="position: relative; display: inline-block;">
+                 <a href="{% url 'login' %}"><img src="{% static 'images/user2.png' %}" alt="profile icon"></a>
+            <!-- <a href="{% url 'cart' %}" style="position: relative; display: inline-block;">
                 <img src="{% static 'images/shopping-cart2.png' %}" alt="">
                 {% if cart|length > 0 %}
                 <span style="position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px; font-weight: bold;">{{ cart|length }}</span>
                 {% endif %}
-            </a>
+            </a> -->
         </div>
     </div>
     
@@ -165,8 +164,8 @@
         <p>Elevate your wardrobe with piecesthat speak  to your unique style</p>
         <div>
             <a href="{% url 'women' %}"><button class="btn-banner">Shop Women <img src="{% static 'images/share-arrow.png' %}" alt=""></button></a>
-            <button class="btn-banner btn2">Shop Men <img src="{% static 'images/share-arrow.png' %}" alt=""></button>
-        </div>
+            <a href="{% url 'men' %}"><button class="btn-banner btn2">Shop Men <img src="{% static 'images/share-arrow.png' %}" alt=""></button></a>
+          </div>
     </div>
     
 </section>
@@ -176,30 +175,67 @@
     <h1>Shop By Category</h1>
     <p>Browse through our carefully selected categories to find exactly what you are looking for</p>
     <div class="product-grid">
-        <div class="product-card">
+        <a href="{% url 'women' %}">
+          <div class="product-card">
             <img src="{% static 'images/women1.png' %}" alt="Women Fashion">
             <h3>Women Collection</h3>
-            <p>KES 3,999</p>
+            
         </div>
-        <div class="product-card">
+        </a>
+        
+        <a href="{% url 'men' %}">
+          <div class="product-card">
             <img src="{% static 'images/men.jpg' %}" alt="Men Fashion">
             <h3>Men Collection</h3>
-            <p>KES 3,499</p>
+            
         </div>
-        <div class="product-card">
-            <img src="{% static 'images/accessories.png' %}" alt="Accessories">
-            <h3>Accessories</h3>
-            <p>KES 1,999</p>
-        </div>
+        </a>
+        
     </div>
 </section>
 
-<section class="subs">
+<section class="subs" x-data="{ email: '',   showPopup: false }">
     <h1>Stay in Style</h1>
     <p>Subscribe to our newsletter and be first to know about new arrivals, exclusive deals and fashion tips</p>
-    <input type="email" placeholder="Enter your email" class="email">
-     <button class="btn-banner btn-subs">Subscribe <img src="{% static 'images/share-arrow.png' %}" alt=""></button>
     
+    
+    <form @submit.prevent="showPopup = true; email = '';setTimeout(() => showPopup = false, 2000)">
+    {% csrf_token %}
+    <input 
+        type="email" 
+        name="email" 
+        x-model="email" 
+        placeholder="Enter your email" 
+        class="email" 
+        required
+    >
+    <button type="submit" class="btn-banner btn-subs">
+        Subscribe 
+        <img src="{% static 'images/share-arrow.png' %}" alt="">
+    </button>
+</form>
+<div 
+    x-show="showPopup" 
+    x-cloak
+    x-transition
+    @click.outside="showPopup = false"
+    style="
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #04AA6D;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        z-index: 9999;
+    "
+>
+    Subscribed successfully 
+</div>
+
+
+    
+    </div>
 </section>
 
 <section class="footer-section">
@@ -208,28 +244,19 @@
         <h1>FashionHub</h1>
         <p>Your destination for premium fashion and timeless style</p>
     </div>
-    <div>
-        <h1>Shop</h1>
-        <p>New Arrivals</p>
-        <p>Women</p>
-        <p>Men</p>
-        <p>Accessories</p>
-        <p>Sale</p>
-    </div>
+    
     <div>
         <h1>Help</h1>
-        <p>FAQ</p>
-        <p>Customer Service</p>
-        <p>Shipping Info</p>
-        <p>Returns</p>
+        
+        <p><a style="color: #f1f1f1;" href="{% url 'faq' %}">FAQ</a></p>
+        <p><a style="color: #f1f1f1;" href="{% url 'shipping_info' %}">Shipping Info</a></p>
+        <p><a style="color: #f1f1f1;" href="{% url 'returns' %}">Returns</a></p>
+
     </div>
     <div>
         <h1>About</h1>
-        <p>Contact</p>
-        <p>Our Policy</p>
-        <p>Cookie Policy</p>
-        <p>Terms of service</p>
-    </div>
+        <p><a style="color: #f1f1f1;" href="{% url 'contact' %}">Contact</a></p>
+      </div>
     </div>
    
         <hr>

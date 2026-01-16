@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - FashionHub</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #121212;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .checkout-header {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .checkout-step {
+            display: flex;
+            align-items: center;
+            margin: 0 30px;
+            color: #aaa;
+        }
+        .checkout-step.active {
+            color: #fff;
+        }
+        .checkout-step::before {
+            content: "●";
+            margin-right: 10px;
+            font-size: 20px;
+        }
+        .checkout-step.active::before {
+            content: "●";
+            color: #fff;
+        }
+        .checkout-form {
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .checkout-form h2 {
+            margin-bottom: 20px;
+            color: #ffa500;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #aaa;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background: #2a2a2a;
+            color: #fff;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #ffa500;
+        }
+        .continue-btn {
+            width: 100%;
+            padding: 15px;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        .continue-btn:hover {
+            background: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Checkout Steps -->
+        <div class="checkout-header">
+            <div class="checkout-step active">Shipping</div>
+            <div class="checkout-step">Payment</div>
+            <div class="checkout-step">Review</div>
+        </div>
+
+        <!-- Shipping Information Form -->
+        <div class="checkout-form">
+            <h2>Shipping Information</h2>
+            <form hx-post="{% url 'process_shipping' %}" hx-target="#checkout-form" hx-swap="outerHTML">
+                {% csrf_token %}
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="first_name">First Name *</label>
+                        <input type="text" id="first_name" name="first_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">Last Name *</label>
+                        <input type="text" id="last_name" name="last_name" required>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number *</label>
+                        <input type="tel" id="phone" name="phone" placeholder="2547XXXXXXXX" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="street_address">Street Address *</label>
+                    <input type="text" id="street_address" name="street_address" required>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="city">City *</label>
+                        <input type="text" id="city" name="city" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="county">County *</label>
+                        <input type="text" id="county" name="county" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="postal_code">Postal Code *</label>
+                        <input type="text" id="postal_code" name="postal_code" required>
+                    </div>
+                </div>
+                <button type="submit" class="continue-btn">Continue to Payment</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

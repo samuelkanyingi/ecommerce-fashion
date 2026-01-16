@@ -67,24 +67,21 @@
 
                 <!-- MAIN MENU -->
                 <div x-show="currentMenu === 'main'" class="menu-section">
-                    <a href="#">Home</a>
-                    <a href="javascript:void(0)" @click="currentMenu = 'women'">Women <i class="fa fa-chevron-right"></i></a>
+                    
                     <a href="javascript:void(0)" @click="currentMenu = 'men'">Men <i class="fa fa-chevron-right"></i></a>
-                    <a href="#">Accessories</a>
-                    <a href="#">Sale</a>
+                    
                 </div>
 
                 <!-- WOMEN SUBMENU -->
-                <div x-show="currentMenu === 'women'" x-cloak class="menu-section">
+                <!-- <div x-show="currentMenu === 'women'" x-cloak class="menu-section">
                     <a href="javascript:void(0)" @click="currentMenu = 'main'"><i class="fa fa-chevron-left"></i> Back</a>
                     {% for sub in subcategories %}
                       <a hx-get="{% url 'women' %}?sub={{ sub }}" 
                       hx-target=".product-grid" 
                       hx-swap="innerHTML">{{ sub|title }}</a>
                     {% endfor %}
-                </div>
+                </div> -->
 
-                <!-- MEN SUBMENU -->
                 <!-- MEN SUBMENU -->
         <div x-show="currentMenu === 'men'" x-cloak class="menu-section">
          <a href="javascript:void(0)" @click="currentMenu = 'main'"><i class="fa fa-chevron-left"></i> Back</a>
@@ -102,7 +99,7 @@
             <span onclick="openNav()"><i class="fa fa-bars"></i></span>
 
             <!-- TOP NAV LINKS -->
-            <a href="#" class="hero-btn">FashionHub</a>
+            <a href="{% url 'index' %}" class="hero-btn">FashionHub</a>
             {% for sub in subcategories %}
                 <a hx-get="{% url 'men' %}?sub={{ sub }}" 
                    hx-target=".product-grid" 
@@ -112,9 +109,18 @@
 
             <!-- ICONS -->
             <div class="hero-icons">
-                <!-- <img src="{% static 'images/search2.png' %}" alt="search">
-                <img src="{% static 'images/heart2.png' %}" alt="love"> -->
-                <a href="{% url 'login' %}"><img src="{% static 'images/user2.png' %}" alt="profile"></a>
+                
+              {% if user.is_authenticated %}
+              <form method="post" action="{% url 'logout' %}" style="display:inline;">
+              {% csrf_token %}
+               <button type="submit" style="background:none; border:none; cursor:pointer;">
+                <i class="fa fa-sign-out"></i>
+               </button>
+              </form>
+              {% else %}
+                <a href="{% url 'login' %}?next={{ request.path }}">Login</a>
+              {% endif %}
+                <!-- <a href="{% url 'login' %}?next={{ request.path }}"><img src="{% static 'images/user2.png' %}" alt="profile"></a> -->
                 <a href="{% url 'cart' %}" id="cart-icon" style="position: relative; display: inline-block; font-size: 20px;">
                     <i class="fa fa-shopping-cart"></i>
                     {% if cart|length > 0 %}
@@ -170,13 +176,10 @@
     </div>
 </section>
 
-<!-- SUBSCRIBE -->
-<section class="subs">
-    <h1>Stay in Style</h1>
-    <p>Subscribe to our newsletter and be first to know about new arrivals, exclusive deals and fashion tips</p>
-    <input type="email" placeholder="Enter your email" class="email">
-    <button class="btn-banner btn-subs">Subscribe <img src="{% static 'images/share-arrow.png' %}" alt=""></button>
-</section>
+
+
+
+
 
 <!-- FOOTER -->
 <section class="footer-section">
@@ -186,26 +189,15 @@
             <p>Your destination for premium fashion and timeless style</p>
         </div>
         <div>
-            <h1>Shop</h1>
-            <p>New Arrivals</p>
-            <p>Women</p>
-            <p>Men</p>
-            <p>Accessories</p>
-            <p>Sale</p>
-        </div>
-        <div>
             <h1>Help</h1>
-            <p>FAQ</p>
-            <p>Customer Service</p>
-            <p>Shipping Info</p>
-            <p>Returns</p>
+            <p><a style="color: #f1f1f1;" href="{% url 'faq' %}">FAQ</a></p>
+            <p><a style="color: #f1f1f1;" href="{% url 'shipping_info' %}">Shipping Info</a></p>
+            <p><a style="color: #f1f1f1;" href="{% url 'returns' %}">Returns</a></p>
+
         </div>
         <div>
             <h1>About</h1>
-            <p>Contact</p>
-            <p>Our Policy</p>
-            <p>Cookie Policy</p>
-            <p>Terms of service</p>
+            <p><a style="color: #f1f1f1;" href="{% url 'contact' %}">Contact</a></p>
         </div>
     </div>
     <hr>
