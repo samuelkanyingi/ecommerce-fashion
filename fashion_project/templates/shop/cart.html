@@ -184,7 +184,8 @@
               and
               order.status=""
               ="PENDING"
-              %}hx-get="{% url 'check_order_status' %}"
+              %}
+              hx-get="{% url 'check_order_status' %}"
               hx-trigger="every 3s"
               hx-swap="outerHTML"
               {%
