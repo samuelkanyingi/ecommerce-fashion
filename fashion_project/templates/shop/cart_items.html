@@ -1,65 +1,82 @@
 {% for item in cart %}
 <div class="cart-item">
-    {% if '/media/' in item.image or 'media/' in item.image %}
-        <img src="{{ item.image }}" width="80" alt="">
-    {% else %}
-        <img src="/static/{{ item.image }}" width="80" alt="">
+  {% if '/media/' in item.image or 'media/' in item.image %}
+  <img src="{{ item.image }}" width="80" alt="" />
+  {% else %}
+  <img src="/static/{{ item.image }}" width="80" alt="" />
+  {% endif %}
+  <div style="flex: 1; margin: 15px">
+    <h4>{{ item.name }}</h4>
+    {% if item.size %}
+    <p style="margin: 5px 0; color: #666; font-size: 14px">
+      Size: {{ item.size }}
+    </p>
+    {% endif %} {% if item.description %}
+    <p style="color: #888; font-size: 13px; margin-top: 5px; line-height: 1.4">
+      {{ item.description }}
+    </p>
     {% endif %}
-    <div style="flex:1;margin:15px;">
-        <h4>{{ item.name }}</h4>
-        <p>KES {{ item.price }}</p>
-    </div>
-    <div style="display: flex; align-items:center; gap: 10px;">
-        <button 
-            hx-post="{% url 'update_cart' %}" 
-            hx-target="#cart-items-list"
-            hx-swap="innerHTML"
-            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-            hx-vals='{"action":"decrease","name":"{{ item.name }}"}'
-            style="padding: 1px 4px;"
-            >-</button>
+    <p>KES {{ item.price }}</p>
+  </div>
+  <div style="display: flex; align-items: center; gap: 10px">
+    <button
+      hx-post="{% url 'update_cart' %}"
+      hx-target="#cart-items-list"
+      hx-swap="innerHTML"
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+      hx-vals='{"action":"decrease","name":"{{ item.name }}"}'
+      style="padding: 1px 4px"
+    >
+      -
+    </button>
 
-        <strong>{{ item.quantity }}</strong>
+    <strong>{{ item.quantity }}</strong>
 
-        <button 
-            hx-post="{% url 'update_cart' %}" 
-            hx-target="#cart-items-list"
-            hx-swap="innerHTML"
-            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-            hx-vals='{"action":"increase","name":"{{ item.name }}"}'
-            style="padding: 1px 4px"
-            >+</button>
+    <button
+      hx-post="{% url 'update_cart' %}"
+      hx-target="#cart-items-list"
+      hx-swap="innerHTML"
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+      hx-vals='{"action":"increase","name":"{{ item.name }}"}'
+      style="padding: 1px 4px"
+    >
+      +
+    </button>
 
-        <button 
-            hx-post="{% url 'remove_item' %}" 
-            hx-target="#cart-items-list"
-            hx-swap="innerHTML"
-            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-            hx-vals='{"name":"{{ item.name }}"}'
-            style="color: red; border: none; background: none;"
->
-            <i class="fa fa-trash"></i>
-        </button>
-    </div>
+    <button
+      hx-post="{% url 'remove_item' %}"
+      hx-target="#cart-items-list"
+      hx-swap="innerHTML"
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+      hx-vals='{"name":"{{ item.name }}"}'
+      style="color: red; border: none; background: none"
+    >
+      <i class="fa fa-trash"></i>
+    </button>
+  </div>
 </div>
 {% empty %}
 <p>Your cart is empty</p>
 {% endfor %}
 
 <!-- Out of band swap for total -->
-<p id="cart-total" hx-swap-oob="true">Total: <strong>KES {{ total }}</strong></p>
+<p id="cart-total" hx-swap-oob="true">
+  Total: <strong>KES {{ total }}</strong>
+</p>
 
 <!-- Out of band swap for order number -->
 <div id="order-number" hx-swap-oob="true">
-{% if order and cart %}
-<p><strong>Order Number:</strong> {{ order.tracking_number }}</p>
-{% endif %}
+  {% if order and cart %}
+  <p><strong>Order Number:</strong> {{ order.tracking_number }}</p>
+  {% endif %}
 </div>
 <!-- OOB swap for order status -->
 <div id="order-status" hx-swap-oob="true">
-{% if order %}
-<span style="padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; {% if order.status == 'PAID' %}background-color: #04AA6D; color: white;{% else %}background-color: #ffa500; color: white;{% endif %}">
+  {% if order %}
+  <span
+    style="padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; {% if order.status == 'PAID' %}background-color: #04AA6D; color: white;{% else %}background-color: #ffa500; color: white;{% endif %}"
+  >
     {{ order.status }}
-</span>
-{% endif %}
+  </span>
+  {% endif %}
 </div>

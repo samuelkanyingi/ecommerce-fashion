@@ -1,250 +1,719 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cart</title>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <script src="https://unpkg.com/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
+    <script
+      src="https://unpkg.com/alpinejs@3.12.0/dist/cdn.min.js"
+      defer
+    ></script>
 
+    <meta name="csrf-token" content="{{ csrf_token }}" />
+    <script>
+      document.body.addEventListener("htmx:configRequest", (e) => {
+        e.detail.headers["X-CSRFToken"] = document.querySelector(
+          'meta[name="csrf-token"]',
+        ).content;
+      });
+    </script>
 
-
-
-    <meta name="csrf-token" content="{{ csrf_token }}">
-<script>
-document.body.addEventListener('htmx:configRequest', (e) => {
-    e.detail.headers['X-CSRFToken'] =
-        document.querySelector('meta[name="csrf-token"]').content;
-});
-</script>
-
-
-
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            background-color: #f5f5f5;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .cartContainer {
-            display: flex;
-            gap: 30px;
-        }
-        .cart-items {
-            flex: 2;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-        }
-        .cart-item {
-            display: flex;
-            align-items: center;
-            padding: 20px 0;
-            border-bottom: 1px solid #eee;
-        }
-        .order-summary {
-            flex: 1;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            height: fit-content;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background-color: #f5f5f5;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .cartContainer {
+        display: flex;
+        gap: 30px;
+      }
+      .cart-items {
+        flex: 2;
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+      }
+      .cart-item {
+        display: flex;
+        align-items: center;
+        padding: 20px 0;
+        border-bottom: 1px solid #eee;
+      }
+      .order-summary {
+        flex: 1;
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        height: fit-content;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="cartHeader">
-            <a href="{% url 'women' %}" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: #fff; color: #333; text-decoration: none; border-radius: 6px; border: 2px solid #e0e0e0; font-weight: 500; transition: all 0.3s ease; margin-bottom: 20px;" onmouseover="this.style.borderColor='#04AA6D'; this.style.color='#04AA6D'" onmouseout="this.style.borderColor='#e0e0e0'; this.style.color='#333'">
-                <i class="fa fa-arrow-left"></i> Back
-            </a>
-            <h1>Shopping Cart</h1>
-        </div>
-        <div class="cartContainer" id="cartContainer">
-            
-            <div class="cart-items" id="cart-items-list">
-                {% for item in cart %}
-                <div class="cart-item">
-                    {% if '/media/' in item.image or 'media/' in item.image %}
-                        <img src="{{ item.image }}" width="80" alt="">
-                    {% else %}
-                        <img src="/static/{{ item.image }}" width="80" alt="">
-                    {% endif %}
-                    <div style="flex: 1; margin: 15px;">
-                        <h4>{{ item.name }}</h4>
-                        <p>KES {{item.price }}</p>
-                    </div>
-                    <div style="display: flex; align-items:center; gap: 10px;">
-                        
-                        <button 
-                            hx-post="{% url 'update_cart' %}"
-                            hx-target="#cart-items-list"
-                            hx-swap="innerHTML"
-                            hx-vals='{"action":"decrease", "name": "{{ item.name }}"}'
-                            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                            style="padding: 1px 4px"
-                            >
-                            -
-                        </button>
-                        <strong>{{ item.quantity }} </strong>
-
-                       
-                        <button  
-                            hx-post="{% url 'update_cart' %}"
-                            hx-target="#cart-items-list"
-                            hx-swap="innerHTML"
-                            hx-vals='{"action":"increase", "name": "{{ item.name }}"}'
-                            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                            style="padding: 1px 4px"
-                            > + </button>
-
-                    <button 
-                        hx-post="{% url 'remove_item' %}"
-                        hx-target="#cart-items-list"
-                        hx-swap="innerHTML"
-                        hx-vals='{"name": "{{ item.name }}"}'
-                        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                        style="color: red; border: none; background: none;"
-                    >
-                        <i class="fa fa-trash"></i></button>
-                    </div>
-                </div>
-                {% empty %}
-                <p>You cart is empty</p>
-                {% endfor %}
+      <div class="cartHeader">
+        <a
+          href="{% url 'women' %}"
+          style="
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: #fff;
+            color: #333;
+            text-decoration: none;
+            border-radius: 6px;
+            border: 2px solid #e0e0e0;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+          "
+          onmouseover="
+            this.style.borderColor = '#04AA6D';
+            this.style.color = '#04AA6D';
+          "
+          onmouseout="
+            this.style.borderColor = '#e0e0e0';
+            this.style.color = '#333';
+          "
+        >
+          <i class="fa fa-arrow-left"></i> Back
+        </a>
+        <h1>Shopping Cart</h1>
+      </div>
+      <div class="cartContainer" id="cartContainer">
+        <div class="cart-items" id="cart-items-list">
+          {% for item in cart %}
+          <div class="cart-item">
+            {% if '/media/' in item.image or 'media/' in item.image %}
+            <img src="{{ item.image }}" width="80" alt="" />
+            {% else %}
+            <img src="/static/{{ item.image }}" width="80" alt="" />
+            {% endif %}
+            <div style="flex: 1; margin: 15px">
+              <h4>{{ item.name }}</h4>
+              <p>KES {{item.price }}</p>
+              {% if item.size %}
+              <p style="color: #666; font-size: 14px; margin-top: 5px">
+                Size: {{ item.size }}
+              </p>
+              {% endif %} {% if item.description %}
+              <p
+                style="
+                  color: #888;
+                  font-size: 13px;
+                  margin-top: 5px;
+                  line-height: 1.4;
+                "
+              >
+                {{ item.description }}
+              </p>
+              {% endif %}
             </div>
-            <div class="order-summary" x-data="{ open: false, step: 1, phone: '', email: '', city: '', location: '' }">
-    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-        <h2 style="margin: 0;">Order Summary</h2>
-        <div id="order-status" 
-             {% if order and order.status == 'PENDING' %}hx-get="{% url 'check_order_status' %}" hx-trigger="every 3s" hx-swap="outerHTML"{% endif %}>
-        {% if order %}
-        <span style="padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; {% if order.status == 'PAID' %}background-color: #04AA6D; color: white;{% else %}background-color: #ffa500; color: white;{% endif %}">
-            {{ order.status }}
-        </span>
-        {% endif %}
+            <div style="display: flex; align-items: center; gap: 10px">
+              <button
+                hx-post="{% url 'update_cart' %}"
+                hx-target="#cart-items-list"
+                hx-swap="innerHTML"
+                hx-vals='{"action":"decrease", "name": "{{ item.name }}"}'
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                style="padding: 1px 4px"
+              >
+                -
+              </button>
+              <strong>{{ item.quantity }} </strong>
+
+              <button
+                hx-post="{% url 'update_cart' %}"
+                hx-target="#cart-items-list"
+                hx-swap="innerHTML"
+                hx-vals='{"action":"increase", "name": "{{ item.name }}"}'
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                style="padding: 1px 4px"
+              >
+                +
+              </button>
+
+              <button
+                hx-post="{% url 'remove_item' %}"
+                hx-target="#cart-items-list"
+                hx-swap="innerHTML"
+                hx-vals='{"name": "{{ item.name }}"}'
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                style="color: red; border: none; background: none"
+              >
+                <i class="fa fa-trash"></i>
+              </button>
+            </div>
+          </div>
+          {% empty %}
+          <p>You cart is empty</p>
+          {% endfor %}
         </div>
-    </div>
-    <div id="order-number">
-    {% if order and cart %}
-    <p><strong>Order Number:</strong> {{ order.tracking_number }}</p>
-    {% endif %}
-    </div>
+        <div
+          class="order-summary"
+          x-data="{ open: false, step: 1, phone: '', email: '', city: '', location: '' }"
+        >
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              margin-bottom: 15px;
+            "
+          >
+            <h2 style="margin: 0">Order Summary</h2>
+            <div
+              id="order-status"
+              {%
+              if
+              order
+              and
+              order.status=""
+              ="PENDING"
+              %}hx-get="{% url 'check_order_status' %}"
+              hx-trigger="every 3s"
+              hx-swap="outerHTML"
+              {%
+              endif
+              %}
+            >
+              {% if order and cart %}
+              <span
+                style="padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; {% if order.status == 'PAID' %}background-color: #04AA6D; color: white;{% else %}background-color: #ffa500; color: white;{% endif %}"
+              >
+                {{ order.status }}
+              </span>
+              {% endif %}
+            </div>
+          </div>
+          <div id="order-number">
+            {% if order and cart %}
+            <p><strong>Order Number:</strong> {{ order.tracking_number }}</p>
+            {% endif %}
+          </div>
 
-    <p id="cart-total">Total: <strong>KES {{ total }}</strong></p>
-    
-    <button @click="open = true"
-        style="width: 100%; background-color: black; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor:pointer;">
-        Proceed to Checkout
-    </button>
+          <p id="cart-total">Total: <strong>KES {{ total }}</strong></p>
 
-    <!-- Checkout Modal -->
-    {% if user.is_authenticated %}
-    <div x-show="open" x-cloak
-        style="position: fixed; inset:0; background: rgba(0,0,0,0.6); display:flex; justify-content:center; align-items:center; overflow:auto; padding: 20px;"
-        @click.self="open=false">
-        
-        <div style="background:white; padding:30px; border-radius:12px; width: 500px; max-width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.2); margin:150px 400px">
-            <h2 style="margin-bottom: 25px; text-align: center; color: #333;">Checkout</h2>
+          <button
+            @click="open = true"
+            style="
+              width: 100%;
+              background-color: black;
+              color: white;
+              padding: 12px;
+              border: none;
+              border-radius: 6px;
+              font-weight: bold;
+              cursor: pointer;
+            "
+          >
+            Proceed to Checkout
+          </button>
 
-            <!-- Progress Bar -->
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; position: relative; padding-top: 0;">
-                <div style="position: absolute; top: 20px; left: 16.67%; right: 16.67%; height: 3px; background: #e0e0e0; z-index: 0;"></div>
-                <div :style="`position: absolute; top: 20px; left: 16.67%; height: 3px; background: #04AA6D; z-index: 0; width: ${(step - 1) * 33.33}%; transition: width 0.3s ease;`"></div>
-                
+          <!-- Checkout Modal -->
+          {% if user.is_authenticated %}
+          <div
+            x-show="open"
+            x-cloak
+            style="
+              position: fixed;
+              inset: 0;
+              background: rgba(0, 0, 0, 0.6);
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              overflow: auto;
+              padding: 20px;
+            "
+            @click.self="open=false"
+          >
+            <div
+              style="
+                background: white;
+                padding: 30px;
+                border-radius: 12px;
+                width: 500px;
+                max-width: 100%;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+                margin: 150px 400px;
+              "
+            >
+              <h2 style="margin-bottom: 25px; text-align: center; color: #333">
+                Checkout
+              </h2>
+
+              <!-- Progress Bar -->
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: flex-start;
+                  margin-bottom: 30px;
+                  position: relative;
+                  padding-top: 0;
+                "
+              >
+                <div
+                  style="
+                    position: absolute;
+                    top: 20px;
+                    left: 16.67%;
+                    right: 16.67%;
+                    height: 3px;
+                    background: #e0e0e0;
+                    z-index: 0;
+                  "
+                ></div>
+                <div
+                  :style="`position: absolute; top: 20px; left: 16.67%; height: 3px; background: #04AA6D; z-index: 0; width: ${(step - 1) * 33.33}%; transition: width 0.3s ease;`"
+                ></div>
+
                 <!-- Step circles -->
-                <div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; flex: 1;">
-                    <div :style="`width: 40px; height: 40px; border-radius: 50%; background: ${step >= 1 ? '#04AA6D' : '#e0e0e0'}; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; transition: all 0.3s ease; box-shadow: ${step >= 1 ? '0 2px 8px rgba(4,170,109,0.3)' : 'none'};`">1</div>
-                    <span style="font-size: 12px; margin-top: 8px; color: #666;">Shipping</span>
+                <div
+                  style="
+                    position: relative;
+                    z-index: 1;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    flex: 1;
+                  "
+                >
+                  <div
+                    :style="`width: 40px; height: 40px; border-radius: 50%; background: ${step >= 1 ? '#04AA6D' : '#e0e0e0'}; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; transition: all 0.3s ease; box-shadow: ${step >= 1 ? '0 2px 8px rgba(4,170,109,0.3)' : 'none'};`"
+                  >
+                    1
+                  </div>
+                  <span style="font-size: 12px; margin-top: 8px; color: #666"
+                    >Shipping</span
+                  >
                 </div>
-                <div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; flex: 1;">
-                    <div :style="`width: 40px; height: 40px; border-radius: 50%; background: ${step >= 2 ? '#04AA6D' : '#e0e0e0'}; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; transition: all 0.3s ease; box-shadow: ${step >= 2 ? '0 2px 8px rgba(4,170,109,0.3)' : 'none'};`">2</div>
-                    <span style="font-size: 12px; margin-top: 8px; color: #666;">Payment</span>
+                <div
+                  style="
+                    position: relative;
+                    z-index: 1;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    flex: 1;
+                  "
+                >
+                  <div
+                    :style="`width: 40px; height: 40px; border-radius: 50%; background: ${step >= 2 ? '#04AA6D' : '#e0e0e0'}; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; transition: all 0.3s ease; box-shadow: ${step >= 2 ? '0 2px 8px rgba(4,170,109,0.3)' : 'none'};`"
+                  >
+                    2
+                  </div>
+                  <span style="font-size: 12px; margin-top: 8px; color: #666"
+                    >Payment</span
+                  >
                 </div>
-                <div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; flex: 1;">
-                    <div :style="`width: 40px; height: 40px; border-radius: 50%; background: ${step >= 3 ? '#04AA6D' : '#e0e0e0'}; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; transition: all 0.3s ease; box-shadow: ${step >= 3 ? '0 2px 8px rgba(4,170,109,0.3)' : 'none'};`">3</div>
-                    <span style="font-size: 12px; margin-top: 8px; color: #666;">Review</span>
+                <div
+                  style="
+                    position: relative;
+                    z-index: 1;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    flex: 1;
+                  "
+                >
+                  <div
+                    :style="`width: 40px; height: 40px; border-radius: 50%; background: ${step >= 3 ? '#04AA6D' : '#e0e0e0'}; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; transition: all 0.3s ease; box-shadow: ${step >= 3 ? '0 2px 8px rgba(4,170,109,0.3)' : 'none'};`"
+                  >
+                    3
+                  </div>
+                  <span style="font-size: 12px; margin-top: 8px; color: #666"
+                    >Review</span
+                  >
                 </div>
-            </div>
+              </div>
 
-            <!-- Step 1: Shipping Info -->
-            <div x-show="step === 1" x-transition>
+              <!-- Step 1: Shipping Info -->
+              <div x-show="step === 1" x-transition>
                 <form id="shippingForm">
-                    {% csrf_token %}
-                    <textarea name="address" placeholder="Address" required style="width:100%; padding:12px; margin-bottom:15px; border: 2px solid #e0e0e0; border-radius:6px; font-size:14px; font-family: inherit; transition: border-color 0.3s ease; outline: none;" onfocus="this.style.borderColor='#04AA6D'" onblur="this.style.borderColor='#e0e0e0'" rows="3"></textarea>
-                    <input type="text" name="city" x-model="city" placeholder="City" required style="width:100%; padding:12px; margin-bottom:15px; border: 2px solid #e0e0e0; border-radius:6px; font-size:14px; transition: border-color 0.3s ease; outline: none;" onfocus="this.style.borderColor='#04AA6D'" onblur="this.style.borderColor='#e0e0e0'">
-                    <input type="text" name="location" x-model="location" placeholder="Location" required style="width:100%; padding:12px; margin-bottom:15px; border: 2px solid #e0e0e0; border-radius:6px; font-size:14px; transition: border-color 0.3s ease; outline: none;" onfocus="this.style.borderColor='#04AA6D'" onblur="this.style.borderColor='#e0e0e0'">
-                    <input type="email" name="email" x-model="email" placeholder="Email" required style="width:100%; padding:12px; margin-bottom:15px; border: 2px solid #e0e0e0; border-radius:6px; font-size:14px; transition: border-color 0.3s ease; outline: none;" onfocus="this.style.borderColor='#04AA6D'" onblur="this.style.borderColor='#e0e0e0'">
-                    <input type="text" name="phone" placeholder="Phone" required style="width:100%; padding:12px; margin-bottom:20px; border: 2px solid #e0e0e0; border-radius:6px; font-size:14px; transition: border-color 0.3s ease; outline: none;" onfocus="this.style.borderColor='#04AA6D'" onblur="this.style.borderColor='#e0e0e0'">
-                    <button type="button" @click="if(document.getElementById('shippingForm').checkValidity()) { step = 2 } else { document.getElementById('shippingForm').reportValidity() }" style="width:100%; padding:14px; background:#04AA6D; color:white; border:none; border-radius:6px; font-size:16px; font-weight:600; cursor:pointer; transition: background 0.3s ease;" onmouseover="this.style.background='#039658'" onmouseout="this.style.background='#04AA6D'">Next: Payment</button>
+                  {% csrf_token %}
+                  <textarea
+                    name="address"
+                    placeholder="Address"
+                    required
+                    style="
+                      width: 100%;
+                      padding: 12px;
+                      margin-bottom: 15px;
+                      border: 2px solid #e0e0e0;
+                      border-radius: 6px;
+                      font-size: 14px;
+                      font-family: inherit;
+                      transition: border-color 0.3s ease;
+                      outline: none;
+                    "
+                    onfocus="this.style.borderColor = '#04AA6D'"
+                    onblur="this.style.borderColor = '#e0e0e0'"
+                    rows="3"
+                  ></textarea>
+                  <input
+                    type="text"
+                    name="city"
+                    x-model="city"
+                    placeholder="City"
+                    required
+                    style="
+                      width: 100%;
+                      padding: 12px;
+                      margin-bottom: 15px;
+                      border: 2px solid #e0e0e0;
+                      border-radius: 6px;
+                      font-size: 14px;
+                      transition: border-color 0.3s ease;
+                      outline: none;
+                    "
+                    onfocus="this.style.borderColor = '#04AA6D'"
+                    onblur="this.style.borderColor = '#e0e0e0'"
+                  />
+                  <input
+                    type="text"
+                    name="location"
+                    x-model="location"
+                    placeholder="Location"
+                    required
+                    style="
+                      width: 100%;
+                      padding: 12px;
+                      margin-bottom: 15px;
+                      border: 2px solid #e0e0e0;
+                      border-radius: 6px;
+                      font-size: 14px;
+                      transition: border-color 0.3s ease;
+                      outline: none;
+                    "
+                    onfocus="this.style.borderColor = '#04AA6D'"
+                    onblur="this.style.borderColor = '#e0e0e0'"
+                  />
+                  <input
+                    type="email"
+                    name="email"
+                    x-model="email"
+                    placeholder="Email"
+                    required
+                    style="
+                      width: 100%;
+                      padding: 12px;
+                      margin-bottom: 15px;
+                      border: 2px solid #e0e0e0;
+                      border-radius: 6px;
+                      font-size: 14px;
+                      transition: border-color 0.3s ease;
+                      outline: none;
+                    "
+                    onfocus="this.style.borderColor = '#04AA6D'"
+                    onblur="this.style.borderColor = '#e0e0e0'"
+                  />
+                  <input
+                    type="text"
+                    name="phone"
+                    placeholder="Phone"
+                    required
+                    style="
+                      width: 100%;
+                      padding: 12px;
+                      margin-bottom: 20px;
+                      border: 2px solid #e0e0e0;
+                      border-radius: 6px;
+                      font-size: 14px;
+                      transition: border-color 0.3s ease;
+                      outline: none;
+                    "
+                    onfocus="this.style.borderColor = '#04AA6D'"
+                    onblur="this.style.borderColor = '#e0e0e0'"
+                  />
+                  <button
+                    type="button"
+                    @click="if(document.getElementById('shippingForm').checkValidity()) { step = 2 } else { document.getElementById('shippingForm').reportValidity() }"
+                    style="
+                      width: 100%;
+                      padding: 14px;
+                      background: #04aa6d;
+                      color: white;
+                      border: none;
+                      border-radius: 6px;
+                      font-size: 16px;
+                      font-weight: 600;
+                      cursor: pointer;
+                      transition: background 0.3s ease;
+                    "
+                    onmouseover="this.style.background = '#039658'"
+                    onmouseout="this.style.background = '#04AA6D'"
+                  >
+                    Next: Payment
+                  </button>
                 </form>
-            </div>
+              </div>
 
-            <!-- Step 2: Payment -->
-            <div x-show="step === 2" x-transition>
+              <!-- Step 2: Payment -->
+              <div x-show="step === 2" x-transition>
                 <form id="paymentForm">
-                    {% csrf_token %}
-                    <input type="text" name="phone" x-model="phone" placeholder="2547XXXXXXXX" required style="width:100%; padding:12px; margin-bottom:20px; border: 2px solid #e0e0e0; border-radius:6px; font-size:14px; transition: border-color 0.3s ease; outline: none;" onfocus="this.style.borderColor='#04AA6D'" onblur="this.style.borderColor='#e0e0e0'">
-                    <button type="button" @click="if(phone && phone.trim() !== '') { step = 3 } else { document.getElementById('paymentForm').reportValidity() }" style="width:100%; padding:14px; background:#04AA6D; color:white; border:none; border-radius:6px; font-size:16px; font-weight:600; cursor:pointer; transition: background 0.3s ease;" onmouseover="this.style.background='#039658'" onmouseout="this.style.background='#04AA6D'">Next: Review</button>
+                  {% csrf_token %}
+                  <input
+                    type="text"
+                    name="phone"
+                    x-model="phone"
+                    placeholder="2547XXXXXXXX"
+                    required
+                    style="
+                      width: 100%;
+                      padding: 12px;
+                      margin-bottom: 20px;
+                      border: 2px solid #e0e0e0;
+                      border-radius: 6px;
+                      font-size: 14px;
+                      transition: border-color 0.3s ease;
+                      outline: none;
+                    "
+                    onfocus="this.style.borderColor = '#04AA6D'"
+                    onblur="this.style.borderColor = '#e0e0e0'"
+                  />
+                  <button
+                    type="button"
+                    @click="if(phone && phone.trim() !== '') { step = 3 } else { document.getElementById('paymentForm').reportValidity() }"
+                    style="
+                      width: 100%;
+                      padding: 14px;
+                      background: #04aa6d;
+                      color: white;
+                      border: none;
+                      border-radius: 6px;
+                      font-size: 16px;
+                      font-weight: 600;
+                      cursor: pointer;
+                      transition: background 0.3s ease;
+                    "
+                    onmouseover="this.style.background = '#039658'"
+                    onmouseout="this.style.background = '#04AA6D'"
+                  >
+                    Next: Review
+                  </button>
                 </form>
-                <button type="button" @click="step = 1" style="margin-top:15px; padding:10px 20px; background:transparent; color:#666; border:2px solid #e0e0e0; border-radius:6px; cursor:pointer; transition: all 0.3s ease;" onmouseover="this.style.borderColor='#04AA6D'; this.style.color='#04AA6D'" onmouseout="this.style.borderColor='#e0e0e0'; this.style.color='#666'">Back</button>
+                <button
+                  type="button"
+                  @click="step = 1"
+                  style="
+                    margin-top: 15px;
+                    padding: 10px 20px;
+                    background: transparent;
+                    color: #666;
+                    border: 2px solid #e0e0e0;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                  "
+                  onmouseover="
+                    this.style.borderColor = '#04AA6D';
+                    this.style.color = '#04AA6D';
+                  "
+                  onmouseout="
+                    this.style.borderColor = '#e0e0e0';
+                    this.style.color = '#666';
+                  "
+                >
+                  Back
+                </button>
+              </div>
+
+              <!-- Step 3: Review -->
+              <div x-show="step === 3" x-transition>
+                <h3 style="margin-bottom: 20px; color: #333; font-size: 18px">
+                  Review Order
+                </h3>
+                <ul
+                  style="
+                    list-style: none;
+                    padding: 0;
+                    margin-bottom: 20px;
+                    background: #f9f9f9;
+                    border-radius: 6px;
+                    padding: 15px;
+                  "
+                >
+                  {% for item in cart %}
+                  <li
+                    style="
+                      padding: 8px 0;
+                      border-bottom: 1px solid #e0e0e0;
+                      color: #555;
+                    "
+                  >
+                    {{ item.quantity }} x {{ item.name }} -
+                    <strong style="color: #04aa6d"
+                      >KES {{ item.total_price }}</strong
+                    >
+                  </li>
+                  {% endfor %}
+                </ul>
+                <p
+                  style="
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: #333;
+                    text-align: right;
+                    margin-bottom: 20px;
+                  "
+                >
+                  Total: <span style="color: #04aa6d">KES {{ total }}</span>
+                </p>
+
+                {% if order and order.id %}
+                <form
+                  method="post"
+                  hx-post="{% url 'stk_push' order_id=order.id %}"
+                >
+                  {% csrf_token %}
+                  <input type="hidden" name="phone" :value="phone" />
+                  <input type="hidden" name="email" :value="email" />
+                  <input type="hidden" name="city" :value="city" />
+                  <input type="hidden" name="location" :value="location" />
+                  <input type="hidden" name="amount" value="{{ total }}" />
+                  <input
+                    type="hidden"
+                    name="order_number"
+                    value="{{ order.id }}"
+                  />
+                  <button
+                    type="submit"
+                    style="
+                      width: 100%;
+                      padding: 14px;
+                      background: #04aa6d;
+                      color: white;
+                      border: none;
+                      border-radius: 6px;
+                      font-size: 16px;
+                      font-weight: 600;
+                      cursor: pointer;
+                      transition: background 0.3s ease;
+                      margin-bottom: 15px;
+                    "
+                    onmouseover="this.style.background = '#039658'"
+                    onmouseout="this.style.background = '#04AA6D'"
+                  >
+                    Confirm & Pay
+                  </button>
+                </form>
+                {% else %}
+                <p
+                  style="
+                    color: #d32f2f;
+                    background: #ffebee;
+                    padding: 12px;
+                    border-radius: 6px;
+                    margin-bottom: 15px;
+                  "
+                >
+                  Error: Unable to create order. Please refresh and try again.
+                </p>
+                {% endif %}
+
+                <button
+                  type="button"
+                  @click="step = 2"
+                  style="
+                    padding: 10px 20px;
+                    background: transparent;
+                    color: #666;
+                    border: 2px solid #e0e0e0;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                  "
+                  onmouseover="
+                    this.style.borderColor = '#04AA6D';
+                    this.style.color = '#04AA6D';
+                  "
+                  onmouseout="
+                    this.style.borderColor = '#e0e0e0';
+                    this.style.color = '#666';
+                  "
+                >
+                  Back
+                </button>
+              </div>
             </div>
-
-           <!-- Step 3: Review -->
-<div x-show="step === 3" x-transition>
-    <h3 style="margin-bottom: 20px; color: #333; font-size: 18px;">Review Order</h3>
-    <ul style="list-style: none; padding: 0; margin-bottom: 20px; background: #f9f9f9; border-radius: 6px; padding: 15px;">
-        {% for item in cart %}
-            <li style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; color: #555;">{{ item.quantity }} x {{ item.name }} - <strong style="color: #04AA6D;">KES {{ item.total_price }}</strong></li>
-        {% endfor %}
-    </ul>
-    <p style="font-size: 18px; font-weight: 600; color: #333; text-align: right; margin-bottom: 20px;">Total: <span style="color: #04AA6D;">KES {{ total }}</span></p>
-    
-    {% if order and order.id %}
-        <form method="post" hx-post="{% url 'stk_push' order_id=order.id %}">
-            {% csrf_token %}
-            <input type="hidden" name="phone" :value="phone">
-            <input type="hidden" name="email" :value="email">
-            <input type="hidden" name="city" :value="city">
-            <input type="hidden" name="location" :value="location">
-            <input type="hidden" name="amount" value="{{ total }}">
-            <input type="hidden" name="order_number" value="{{ order.id }}">
-            <button type="submit" style="width:100%; padding:14px; background:#04AA6D; color:white; border:none; border-radius:6px; font-size:16px; font-weight:600; cursor:pointer; transition: background 0.3s ease; margin-bottom: 15px;" onmouseover="this.style.background='#039658'" onmouseout="this.style.background='#04AA6D'">Confirm & Pay</button>
-        </form>
-    {% else %}
-        <p style="color: #d32f2f; background: #ffebee; padding: 12px; border-radius: 6px; margin-bottom: 15px;">Error: Unable to create order. Please refresh and try again.</p>
-    {% endif %}
-    
-    <button type="button" @click="step = 2" style="padding:10px 20px; background:transparent; color:#666; border:2px solid #e0e0e0; border-radius:6px; cursor:pointer; transition: all 0.3s ease;" onmouseover="this.style.borderColor='#04AA6D'; this.style.color='#04AA6D'" onmouseout="this.style.borderColor='#e0e0e0'; this.style.color='#666'">Back</button>
-</div>
-
+          </div>
+          {% else %}
+          <div
+            x-show="open"
+            x-cloak
+            style="
+              position: fixed;
+              inset: 0;
+              background: rgba(0, 0, 0, 0.6);
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              overflow: auto;
+              padding: 20px;
+            "
+            @click.self="open=false"
+          >
+            <div
+              style="
+                background: white;
+                padding: 40px;
+                border-radius: 8px;
+                width: 400px;
+                max-width: 100%;
+                text-align: center;
+              "
+            >
+              <h2>Login Required</h2>
+              <p>Please login to proceed with checkout.</p>
+              <a
+                href="{% url 'login' %}?next={{ request.path }}"
+                style="
+                  display: inline-block;
+                  margin-top: 20px;
+                  padding: 10px 20px;
+                  background: #04aa6d;
+                  color: white;
+                  text-decoration: none;
+                  border-radius: 4px;
+                "
+                >Login</a
+              >
+              <button
+                type="button"
+                @click="open=false"
+                style="
+                  display: block;
+                  width: 100%;
+                  margin-top: 10px;
+                  padding: 10px;
+                  background: #ccc;
+                  border: none;
+                  border-radius: 4px;
+                  cursor: pointer;
+                "
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+          {% endif %}
         </div>
+      </div>
     </div>
-    {% else %}
-    <div x-show="open" x-cloak
-        style="position: fixed; inset:0; background: rgba(0,0,0,0.6); display:flex; justify-content:center; align-items:center; overflow:auto; padding: 20px;"
-        @click.self="open=false">
-        
-        <div style="background:white; padding:40px; border-radius:8px; width: 400px; max-width: 100%; text-align:center;">
-            <h2>Login Required</h2>
-            <p>Please login to proceed with checkout.</p>
-            <a href="{% url 'login' %}?next={{ request.path }}" style="display:inline-block; margin-top:20px; padding:10px 20px; background:#04AA6D; color:white; text-decoration:none; border-radius:4px;">Login</a>
-            <button type="button" @click="open=false" style="display:block; width:100%; margin-top:10px; padding:10px; background:#ccc; border:none; border-radius:4px; cursor:pointer;">Cancel</button>
-        </div>
-    </div>
-    {% endif %}
-</div>
-        </div>
-    </div>
-    
-</body>
+  </body>
 </html>

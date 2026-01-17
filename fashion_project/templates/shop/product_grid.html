@@ -1,15 +1,54 @@
 {% for product in products %}
 <div class="product-card">
-    <img src="{{ product.image.url }}" alt="{{ product.name }}">
-    <h3>{{ product.name }}</h3>
-    <p>KES {{ product.price }}</p>
-    <form hx-post="{% url 'add_to_cart' %}" 
-          hx-target="#cart-icon" 
-          hx-swap="outerHTML" 
-          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-        <input type="hidden" name="product_id" value="{{ product.id }}">
-        <button class="cartBtn"><i class="fa fa-cart-plus"></i> Add to Cart</button>
-    </form>
+  <img src="{{ product.image.url }}" alt="{{ product.name }}" />
+  <h3>{{ product.name }}</h3>
+  <p>KES {{ product.price }}</p>
+  <form
+    hx-post="{% url 'add_to_cart' %}"
+    hx-target="#cart-icon"
+    hx-swap="outerHTML"
+    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+  >
+    <input type="hidden" name="product_id" value="{{ product.id }}" />
+    <select
+      name="size"
+      style="
+        width: 100%;
+        padding: 8px;
+        margin: 10px 0;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+      "
+    >
+      <option value="">Select Size</option>
+      {% if product.subcategory == 'shoes' %} {% if product.category == 'women'
+      %}
+      <option value="35">35</option>
+      <option value="36">36</option>
+      <option value="37">37</option>
+      <option value="38">38</option>
+      <option value="39">39</option>
+      <option value="40">40</option>
+      <option value="41">41</option>
+      {% else %}
+      <option value="38">38</option>
+      <option value="39">39</option>
+      <option value="40">40</option>
+      <option value="41">41</option>
+      <option value="42">42</option>
+      <option value="43">43</option>
+      <option value="44">44</option>
+      {% endif %} {% else %} {% if product.category == 'women' %}
+      <option value="XS">Extra Small</option>
+      {% endif %}
+      <option value="S">Small</option>
+      <option value="M">Medium</option>
+      <option value="L">Large</option>
+      <option value="XL">Extra Large</option>
+      {% endif %}
+    </select>
+    <button class="cartBtn"><i class="fa fa-cart-plus"></i> Add to Cart</button>
+  </form>
 </div>
 {% empty %}
 <p>No products found.</p>

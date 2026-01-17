@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.db import models
 from django.conf import settings
-from .models import Product, Order
+from .models import Product, Order, OrderItem
 from .utils.mpesa import get_mpesa_access_token
 import datetime
 import base64
@@ -133,6 +133,7 @@ def add_to_cart(request):
         cart = request.session.get("cart", [])
 
         product_id = request.POST.get("product_id")
+        size = request.POST.get("size", "")  # Get size from form
         
         if product_id:
             try:
@@ -142,6 +143,8 @@ def add_to_cart(request):
                     "price": int(product.price),
                     "image": product.image.url if product.image else "",
                     "quantity": 1,
+                    "size": size,
+                    "description": product.description,
                 }
             except Product.DoesNotExist:
                 return HttpResponse("Product not found", status=404)
@@ -151,6 +154,7 @@ def add_to_cart(request):
                 "price": int(request.POST.get("price", 0)),
                 "image": request.POST.get("image"),
                 "quantity": 1,
+                "size": size,
             }
         
         cart.append(item)
@@ -177,13 +181,27 @@ def cart(request):
     if request.user.is_authenticated:
         order, created = Order.objects.get_or_create(
             buyer=request.user,
-            status="PENDING",
-            defaults={"amount": total}
+            status="PENDING"
         )
         
-        if not created and order.amount != total:
-            order.amount = total
-            order.save()
+        # Sync OrderItems with cart (update quantities/prices)
+        if cart_items:
+            # Clear existing items for this pending order
+            order.items.all().delete()
+            
+            # Create OrderItems from cart
+            for item in cart_items:
+                try:
+                    product = Product.objects.get(name=item['name'])
+                    OrderItem.objects.create(
+                        order=order,
+                        product=product,
+                        quantity=item.get('quantity', 1),
+                        price=item['price'],
+                        size=item.get('size', '')
+                    )
+                except Product.DoesNotExist:
+                    print(f"Product not found: {item['name']}")
 
     return render(request, "shop/cart.html", {
         "cart": cart_items,
@@ -290,7 +308,7 @@ def stk_push(request, order_id):
         "Password": password,
         "Timestamp": timestamp,
         "TransactionType": "CustomerPayBillOnline",
-        "Amount": order.amount,
+        "Amount": order.get_total_amount(),
         "PartyA": phone,
         "PartyB": settings.MPESA_SHORTCODE,
         "PhoneNumber": phone,
@@ -351,10 +369,7 @@ def mpesa_callback(request):
                 if item.get("Name") == "MpesaReceiptNumber":
                     receipt = item.get("Value")
                     break
-            
-            # Get the order reference from callback
-            #checkout_request_id = callback.get("CheckoutRequestID")
-            
+       
             # Find the most recent pending order and update it
             order = Order.objects.filter(status="PENDING").order_by('-id').first()
             
@@ -364,6 +379,10 @@ def mpesa_callback(request):
                 order.save()
                 print(f"Order {order.tracking_number} updated - Receipt: {receipt}, Status: PAID")
                 
+                # Ensure OrderItems exist (in case cart was cleared before callback)
+                if not order.items.exists():
+                    print("Warning: Order has no items after payment")
+                
                 # Get email, city, location from order
                 email = order.email or order.buyer.email
                 city = order.city
@@ -372,6 +391,12 @@ def mpesa_callback(request):
                 # Send confirmation email with receipt
                 if email:
                     try:
+                        # Build order items list for email
+                        items_list = ""
+                        for order_item in order.items.all():
+                            size_text = f" (Size: {order_item.size})" if order_item.size else ""
+                            items_list += f"- {order_item.quantity}x {order_item.product.name}{size_text} - KES {order_item.get_total()}\n                        "
+                        
                         subject = f"Payment Confirmed - FashionHub Order {order.tracking_number}"
                         message = f"""
                         Dear {order.buyer.username},
@@ -381,9 +406,12 @@ def mpesa_callback(request):
                         Payment Details:
                         - M-Pesa Receipt: {receipt}
                         - Order Number: {order.tracking_number}
-                        - Amount Paid: KES {order.amount}
+                        - Amount Paid: KES {order.get_total_amount()}
                         - Phone: {order.phone}
                         - Payment Status: PAID
+
+                        Order Items:
+                        {items_list}
 
                         Delivery Information:
                         - City: {city if city else 'Not provided'}
@@ -577,7 +605,12 @@ def inventory(request):
     total_orders = Order.objects.count()
     paid_orders = Order.objects.filter(status='PAID').count()
     pending_orders = Order.objects.filter(status='PENDING').count()
-    total_revenue = Order.objects.filter(status='PAID').aggregate(total=models.Sum('amount'))['total'] or 0
+    
+    # Calculate total revenue from OrderItems (3NF compliant)
+    paid_order_ids = Order.objects.filter(status='PAID').values_list('id', flat=True)
+    total_revenue = OrderItem.objects.filter(order_id__in=paid_order_ids).aggregate(
+        total=models.Sum(models.F('quantity') * models.F('price'))
+    )['total'] or 0
     
     # Get products by category
     women_products = Product.objects.filter(category='women').order_by('name')

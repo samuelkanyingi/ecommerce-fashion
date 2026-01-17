@@ -1,200 +1,321 @@
 {% load static %}
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
     <title>FashionHub Marketplace</title>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script
+      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
+      defer
+    ></script>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
 
     <style>
-        /* SIDE NAVIGATION */
+      /* SIDE NAVIGATION */
+      .sidenav {
+        height: 100%;
+        width: 0;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: #111;
+        overflow-x: hidden;
+        padding-top: 60px;
+        transition: 0.5s;
+      }
+      .sidenav a {
+        padding: 8px 8px 8px 32px;
+        text-decoration: none;
+        font-size: 25px;
+        color: #818181;
+        display: block;
+        transition: 0.3s;
+      }
+      .sidenav a:hover {
+        color: #f1f1f1;
+      }
+      .sidenav .closebtn {
+        position: absolute;
+        top: 0;
+        right: 25px;
+        font-size: 36px;
+      }
+      #main {
+        transition: margin-left 0.5s;
+        padding: 20px;
+      }
+      @media screen and (max-height: 450px) {
         .sidenav {
-            height: 100%;
-            width: 0;
-            position: fixed;
-            z-index: 1;
-            top: 0;
-            left: 0;
-            background-color: #111;
-            overflow-x: hidden;
-            padding-top: 60px;
-            transition: 0.5s;
+          padding-top: 15px;
         }
         .sidenav a {
-            padding: 8px 8px 8px 32px;
-            text-decoration: none;
-            font-size: 25px;
-            color: #818181;
-            display: block;
-            transition: 0.3s;
+          font-size: 18px;
         }
-        .sidenav a:hover { color: #f1f1f1; }
-        .sidenav .closebtn {
-            position: absolute;
-            top: 0;
-            right: 25px;
-            font-size: 36px;
+      }
+
+      .menu-section {
+        animation: slideIn 0.4s ease-in-out;
+      }
+      [x-cloak] {
+        display: none;
+      }
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
         }
-        #main { transition: margin-left .5s; padding: 20px; }
-        @media screen and (max-height: 450px) { .sidenav {padding-top: 15px;} .sidenav a {font-size: 18px;} }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      .menu-section a i {
+        margin-left: 10px;
+        float: right;
+      }
 
-        .menu-section { animation: slideIn 0.4s ease-in-out; }
-        [x-cloak] { display: none; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .menu-section a i { margin-left: 10px; float: right; }
-
-        .dropdown { position: relative; }
-        .dropdown-content { display: none; position: absolute; background-color: #f9f9f9; min-width: 200px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); }
-        .dropbtn { background-color: #4CAF50; color: white; padding: 16px; font-size: 16px; border: none; border-radius: 7px; }
-        .dropdown-content a { color: black; padding: 12px 16px; text-decoration: none; display: block; margin-right: 10px; }
-        .dropdown:hover .dropdown-content { display: block; }
-        .dropdown:hover .dropbtn { background-color: #3e8e41; }
+      .dropdown {
+        position: relative;
+      }
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 200px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+      }
+      .dropbtn {
+        background-color: #4caf50;
+        color: white;
+        padding: 16px;
+        font-size: 16px;
+        border: none;
+        border-radius: 7px;
+      }
+      .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        margin-right: 10px;
+      }
+      .dropdown:hover .dropdown-content {
+        display: block;
+      }
+      .dropdown:hover .dropbtn {
+        background-color: #3e8e41;
+      }
     </style>
-</head>
+  </head>
 
-<body x-data="{ cartCount: 0, cartTotal: 0, addToCart(price) { this.cartCount++; this.cartTotal += price; } }">
-
-<!-- HERO SECTION -->
-<section class="hero-section">
-    <div class="hero-content">
+  <body
+    x-data="{ cartCount: 0, cartTotal: 0, addToCart(price) { this.cartCount++; this.cartTotal += price; } }"
+  >
+    <!-- HERO SECTION -->
+    <section class="hero-section">
+      <div class="hero-content">
         <div class="nav-links">
+          <!-- SIDE NAVIGATION -->
+          <div id="mySidenav" class="sidenav" x-data="{ currentMenu: 'main' }">
+            <a href="javascript:void(0)" class="closebtn" onclick="closeNav()"
+              >&times;</a
+            >
 
-            <!-- SIDE NAVIGATION -->
-            <div id="mySidenav" class="sidenav" x-data="{ currentMenu: 'main' }">
-                <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-
-                <!-- MAIN MENU -->
-                <div x-show="currentMenu === 'main'" class="menu-section">
-                    
-                    <a href="javascript:void(0)" @click="currentMenu = 'men'">Men <i class="fa fa-chevron-right"></i></a>
-                    
-                </div>
-
-               
-
-                <!-- MEN SUBMENU -->
-                <div x-show="currentMenu === 'men'" x-cloak class="menu-section">
-                <a href="javascript:void(0)" @click="currentMenu = 'main'"><i class="fa fa-chevron-left"></i> Back</a>
-                    {% for sub in subcategories %}
-                    <a hx-get="{% url 'men' %}?sub={{ sub }}" 
-                    hx-target=".product-grid" 
-                    hx-swap="innerHTML" 
-                    @click="closeNav(); setTimeout(() => document.querySelector('.featured-section').scrollIntoView({ behavior: 'smooth' }), 100)">{{ sub|title }}</a>
-                    {% endfor %}
-                </div>
-
+            <!-- MAIN MENU -->
+            <div x-show="currentMenu === 'main'" class="menu-section">
+              <a href="javascript:void(0)" @click="currentMenu = 'men'"
+                >Men <i class="fa fa-chevron-right"></i
+              ></a>
             </div>
 
-            <!-- MENU TOGGLE -->
-            <span onclick="openNav()"><i class="fa fa-bars"></i></span>
+            <!-- MEN SUBMENU -->
+            <div x-show="currentMenu === 'men'" x-cloak class="menu-section">
+              <a href="javascript:void(0)" @click="currentMenu = 'main'"
+                ><i class="fa fa-chevron-left"></i> Back</a
+              >
+              {% for sub in subcategories %}
+              <a
+                hx-get="{% url 'men' %}?sub={{ sub }}"
+                hx-target=".product-grid"
+                hx-swap="innerHTML"
+                @click="closeNav(); setTimeout(() => document.querySelector('.featured-section').scrollIntoView({ behavior: 'smooth' }), 100)"
+                >{{ sub|title }}</a
+              >
+              {% endfor %}
+            </div>
+          </div>
 
-            <!-- TOP NAV LINKS -->
-            <a href="{% url 'index' %}" class="hero-btn">FashionHub</a>
-            {% for sub in subcategories %}
-                <a hx-get="{% url 'men' %}?sub={{ sub }}" 
-                   hx-target=".product-grid" 
-                   hx-swap="innerHTML"
-                   @click="setTimeout(() => document.querySelector('.featured-section').scrollIntoView({ behavior: 'smooth' }), 100)">{{ sub|title }}</a>
-            {% endfor %}
+          <!-- MENU TOGGLE -->
+          <span onclick="openNav()"><i class="fa fa-bars"></i></span>
 
-            <!-- ICONS -->
-            <div class="hero-icons">
-                
-              {% if user.is_authenticated %}
-              <form method="post" action="{% url 'logout' %}" style="display:inline;">
+          <!-- TOP NAV LINKS -->
+          <a href="{% url 'index' %}" class="hero-btn">FashionHub</a>
+          {% for sub in subcategories %}
+          <a
+            hx-get="{% url 'men' %}?sub={{ sub }}"
+            hx-target=".product-grid"
+            hx-swap="innerHTML"
+            @click="setTimeout(() => document.querySelector('.featured-section').scrollIntoView({ behavior: 'smooth' }), 100)"
+            >{{ sub|title }}</a
+          >
+          {% endfor %}
+
+          <!-- ICONS -->
+          <div class="hero-icons">
+            {% if user.is_authenticated %}
+            <form
+              method="post"
+              action="{% url 'logout' %}"
+              style="display: inline"
+            >
               {% csrf_token %}
-               <button type="submit" style="background:none; border:none; cursor:pointer;">
+              <button
+                type="submit"
+                style="background: none; border: none; cursor: pointer"
+              >
                 <i class="fa fa-sign-out"></i>
-               </button>
-              </form>
-              {% else %}
-                <a href="{% url 'login' %}?next={{ request.path }}">Login</a>
+              </button>
+            </form>
+            {% else %}
+            <a href="{% url 'login' %}?next={{ request.path }}">Login</a>
+            {% endif %}
+            <a
+              href="{% url 'cart' %}"
+              id="cart-icon"
+              style="position: relative; display: inline-block; font-size: 20px"
+            >
+              <i class="fa fa-shopping-cart"></i>
+              {% if cart|length > 0 %}
+              <span
+                style="
+                  position: absolute;
+                  top: -8px;
+                  right: -8px;
+                  background: red;
+                  color: white;
+                  border-radius: 50%;
+                  padding: 2px 6px;
+                  font-size: 12px;
+                  font-weight: bold;
+                "
+                >{{ cart|length }}</span
+              >
               {% endif %}
-                <a href="{% url 'cart' %}" id="cart-icon" style="position: relative; display: inline-block; font-size: 20px;">
-                    <i class="fa fa-shopping-cart"></i>
-                    {% if cart|length > 0 %}
-                        <span style="position: absolute; top: -8px; right: -8px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px; font-weight: bold;">{{ cart|length }}</span>
-                    {% endif %}
-                </a>
-            </div>
+            </a>
+          </div>
         </div>
-    </div>
-</section>
+      </div>
+    </section>
 
-<!-- BANNER -->
-<section class="hero-banner2">
-    <div class="banner-text2">
+    <!-- BANNER -->
+    <section class="hero-banner2">
+      <div class="banner-text2">
         <h1>Men's Collection</h1>
         <p>Explore our collection of the latest trends in men fashion</p>
         <p>Elevate your wardrobe with pieces that speak to your unique style</p>
-    </div>
-</section>
+      </div>
+    </section>
 
-<!-- FEATURED PRODUCTS -->
-<section class="featured-section" x-data="{ sortOrder: 'default' }">
-    <div class="featured-women">
+    <!-- FEATURED PRODUCTS -->
+    <section class="featured-section" x-data="{ sortOrder: 'default' }">
+      <div class="featured-women">
         <h1 id="f-h1">All products</h1>
         <div class="dropdown">
-            <button class="dropbtn">Filter Items By</button>
-            <div class="dropdown-content">
-                <a href="?sort=low-to-high">Price: Low to High</a>
-                <a href="?sort=high-to-low">Price: High to Low</a>
-                <a href="?sort=default">Default</a>
-            </div>
+          <button class="dropbtn">Filter Items By</button>
+          <div class="dropdown-content">
+            <a href="?sort=low-to-high">Price: Low to High</a>
+            <a href="?sort=high-to-low">Price: High to Low</a>
+            <a href="?sort=default">Default</a>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <!-- SINGLE PRODUCT GRID -->
-    <div class="product-grid">
+      <!-- SINGLE PRODUCT GRID -->
+      <div class="product-grid">
         {% for product in products %}
-            <div class="product-card">
-                <img src="{{ product.image.url }}" alt="{{ product.name }}">
-                <h3>{{ product.name }}</h3>
-                <p>KES {{ product.price }}</p>
-                <form hx-post="{% url 'add_to_cart' %}" 
-                      hx-target="#cart-icon" 
-                      hx-swap="outerHTML" 
-                      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-                    <input type="hidden" name="product_id" value="{{ product.id }}">
-                    <button class="cartBtn"><i class="fa fa-cart-plus"></i> Add to Cart</button>
-                </form>
-            </div>
+        <div class="product-card">
+          <img src="{{ product.image.url }}" alt="{{ product.name }}" />
+          <h3>{{ product.name }}</h3>
+          <p>KES {{ product.price }}</p>
+          <form
+            hx-post="{% url 'add_to_cart' %}"
+            hx-target="#cart-icon"
+            hx-swap="outerHTML"
+            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+          >
+            <input type="hidden" name="product_id" value="{{ product.id }}" />
+            <select
+              name="size"
+              style="
+                width: 100%;
+                padding: 8px;
+                margin: 10px 0;
+                border-radius: 4px;
+                border: 1px solid #ddd;
+              "
+            >
+              <option value="">Select Size</option>
+              {% if product.subcategory == 'shoes' %}
+              <option value="38">38</option>
+              <option value="39">39</option>
+              <option value="40">40</option>
+              <option value="41">41</option>
+              <option value="42">42</option>
+              <option value="43">43</option>
+              <option value="44">44</option>
+              {% else %}
+              <option value="S">Small</option>
+              <option value="M">Medium</option>
+              <option value="L">Large</option>
+              <option value="XL">Extra Large</option>
+              {% endif %}
+            </select>
+            <button class="cartBtn">
+              <i class="fa fa-cart-plus"></i> Add to Cart
+            </button>
+          </form>
+        </div>
         {% empty %}
-            <p>No products available.</p>
+        <p>No products available.</p>
         {% endfor %}
-    </div>
-</section>
+      </div>
+    </section>
 
-
-
-
-
-
-<!-- FOOTER -->
-<section class="footer-section">
-    <div class="footer">
+    <!-- FOOTER -->
+    <section class="footer-section">
+      <div class="footer">
         <div>
-            <h1>FashionHub</h1>
-            <p>Your destination for premium fashion and timeless style</p>
+          <h1>FashionHub</h1>
+          <p>Your destination for premium fashion and timeless style</p>
         </div>
         <div>
-            <h1>Help</h1>
-            <p><a style="color: #f1f1f1;" href="{% url 'faq' %}">FAQ</a></p>
-            <p><a style="color: #f1f1f1;" href="{% url 'shipping_info' %}">Shipping Info</a></p>
-            <p><a style="color: #f1f1f1;" href="{% url 'returns' %}">Returns</a></p>
-
+          <h1>Help</h1>
+          <p><a style="color: #f1f1f1" href="{% url 'faq' %}">FAQ</a></p>
+          <p>
+            <a style="color: #f1f1f1" href="{% url 'shipping_info' %}"
+              >Shipping Info</a
+            >
+          </p>
+          <p>
+            <a style="color: #f1f1f1" href="{% url 'returns' %}">Returns</a>
+          </p>
         </div>
         <div>
-            <h1>About</h1>
-            <p><a style="color: #f1f1f1;" href="{% url 'contact' %}">Contact</a></p>
+          <h1>About</h1>
+          <p>
+            <a style="color: #f1f1f1" href="{% url 'contact' %}">Contact</a>
+          </p>
         </div>
-    </div>
-    <hr>
-    <p>&copy2026 FashionHub. All rights reserved</p>
-</section>
+      </div>
+      <hr />
+      <p>&copy2026 FashionHub. All rights reserved</p>
+    </section>
 
-<script src="{% static 'js/main.js' %}"></script>
-</body>
+    <script src="{% static 'js/main.js' %}"></script>
+  </body>
 </html>
